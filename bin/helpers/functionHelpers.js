@@ -6,6 +6,13 @@ const generateHashedPassword = (password) => {
   return bcrypt.hashSync(password, 10);
 };
 
+//generate cookie session
+const generateCookie = (email) => {
+  console.log('cookie1');
+  req.session.email_id = email;
+  console.log('cookie2');
+};
+
 //check if email already exists
 const emailExists = (email) => {
   return getUserByEmailDB(email).then((result) => {
@@ -29,22 +36,11 @@ const usernameExists = (username) => {
 const validatePassword = (email, password) => {
   return getUserByEmailDB(email)
     .then((user) => bcrypt.compare(password, user.password))
-    .then((result) => {
-      console.log('before error');
-      if (result) {
-        console.log('here12345');
-        generateCookie(user.email);
-        console.log('here54321');
-        return true;
-      }
-      console.log('error here');
-      throw new Error();
+    .then(() => {
+      console.log('here12345');
+      return generateCookie(email);
+      console.log('here54321');
     });
-};
-
-//generate cookie session
-const generateCookie = (email) => {
-  req.session.user = email;
 };
 
 const addUser = (username, email, password) => {

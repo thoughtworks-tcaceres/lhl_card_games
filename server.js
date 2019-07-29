@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 app.use(
   cookieSession({
     name: 'session',
-    keys: ['lhl card games']
+    keys: ['lhl_card_games']
   })
 );
 

@@ -27,8 +27,10 @@ router.post('/login', (req, res) => {
       console.log('login error');
       req.flash('error', 'Login error');
       return res.redirect('/');
-    });
+    })
+    .finally(() => console.log(req.session));
 });
+
 router.post('/logout', (req, res) => {});
 
 router.post('/register', (req, res) => {
