@@ -23,12 +23,11 @@ router.post('/login', (req, res) => {
       console.log('here now 123');
       return res.redirect('/');
     })
-    .catch(() => {
-      console.log('login error');
+    .catch((err) => {
+      console.log('login error', err);
       req.flash('error', 'Login error');
       return res.redirect('/');
-    })
-    .finally(() => console.log(req.session));
+    });
 });
 
 router.post('/logout', (req, res) => {});
