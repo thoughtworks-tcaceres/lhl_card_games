@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Home Page</title>
+<% include ./partials/header.ejs %>
 
-    <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" type="text/css" />
-    <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
-    <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
+<div class="container-fluid">
+  <div class="row">
+    <div class="main-border col-md-8 col-xs-12">
+      <% include ./partials/carousel.ejs %>
+    </div>
+    <div class="main-border col-md-4 col-xs-12">
+      <% include ./partials/signUp.ejs %>
+    </div>
+  </div>
+</div>
 
-    <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
-    <script type="text/javascript" src="/scripts/app.js"></script>
-  </head>
+<% include ./partials/footer.ejs %>
 
-  <body>
-    <h1>Hello World!</h1>
-  </body>
-</html>
+

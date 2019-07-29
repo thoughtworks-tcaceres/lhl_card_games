@@ -2,53 +2,64 @@
 require('dotenv').config();
 
 // Web server config
-const PORT       = process.env.PORT || 8080;
-const ENV        = process.env.ENV || "development";
-const express    = require("express");
-const bodyParser = require("body-parser");
-const sass       = require("node-sass-middleware");
-const app        = express();
-const morgan     = require('morgan');
+const PORT = process.env.PORT || 1000;
+const ENV = process.env.ENV || 'development';
+const express = require('express');
+const sass = require('node-sass-middleware');
+const app = express();
+const morgan = require('morgan');
+
+//additional setups
+const flash = require('connect-flash');
+const cookieSession = require('cookie-session');
 
 // PG database client/connection setup
-const { Pool } = require('pg');
-const dbParams = require('./lib/db.js');
-const db = new Pool(dbParams);
+const db = require('./db/db');
 db.connect();
 
-// Load the logger first so all (static) HTTP requests are logged to STDOUT
-// 'dev' = Concise output colored by response status for development use.
-//         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
+//dev tool
 app.use(morgan('dev'));
 
-app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/styles", sass({
-  src: __dirname + "/styles",
-  dest: __dirname + "/public/styles",
-  debug: true,
-  outputStyle: 'expanded'
-}));
-app.use(express.static("public"));
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['lhl card games']
+  })
+);
 
-// Separated Routes for each Resource
-// Note: Feel free to replace the example routes below with your own
-const usersRoutes = require("./routes/users");
-const widgetsRoutes = require("./routes/widgets");
-
-// Mount all resource routes
-// Note: Feel free to replace the example routes below with your own
-app.use("/api/users", usersRoutes(db));
-app.use("/api/widgets", widgetsRoutes(db));
-// Note: mount other resources here, using the same pattern above
-
-
-// Home page
-// Warning: avoid creating more routes in this file!
-// Separate them into separate routes files (see above).
-app.get("/", (req, res) => {
-  res.render("index");
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  res.locals.error = req.flash('error');
+  res.locals.success = req.flash('success');
+  next();
 });
+
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({extended: true}));
+app.use(
+  '/styles',
+  sass({
+    src: __dirname + '/styles',
+    dest: __dirname + '/public/styles',
+    debug: true,
+    outputStyle: 'expanded'
+  })
+);
+app.use(express.static(__dirname + '/public'));
+
+// ***** routes *****
+const apiRoutes = require('./routes/api');
+const gamesRoutes = require('./routes/games');
+const usersRoutes = require('./routes/users');
+const rankingsRoutes = require('./routes/rankings');
+const defaultRoutes = require('./routes/default');
+
+app.use('/api', apiRoutes);
+app.use('/games', gamesRoutes);
+app.use('/users', usersRoutes);
+app.use('/rankings', rankingsRoutes);
+app.use('/', defaultRoutes);
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
