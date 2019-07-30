@@ -9,7 +9,6 @@ Three of a kind：9999999999
 Flash：99999999
 Pair：999999
 High cards：9999
-
 */
 
 const arrShape = ["D", "C", "H", "S"];
@@ -66,7 +65,7 @@ function deal(poker) {
 }
 
 function getNum(str) {
-  return Number(str.slice(0, 2));
+  return str.slice(0, 2);
 }
 
 function getShape(str) {
