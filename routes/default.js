@@ -16,21 +16,27 @@ router.get('/', (req, res) => {
 
 router.post('/login', (req, res) => {
   const {email, password} = req.body;
-  console.log('req.body', req.body);
   validatePassword(email, password)
-    .then((res) => {
-      req.flash('success', 'Welcome back');
-      console.log('here now 123');
+    .then((result) => {
+      if (result) {
+        req.session.user = email;
+        req.flash('success', 'Welcome back');
+        return res.redirect('/');
+      }
+      req.flash('error', 'Login error');
       return res.redirect('/');
     })
     .catch((err) => {
-      console.log('login error', err);
+      console.log('error route section');
       req.flash('error', 'Login error');
       return res.redirect('/');
     });
 });
 
-router.post('/logout', (req, res) => {});
+router.post('/logout', (req, res) => {
+  req.session = null;
+  return res.redirect('/');
+});
 
 router.post('/register', (req, res) => {
   const {username, email, password, confirmPassword} = req.body;
