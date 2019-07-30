@@ -8,8 +8,7 @@ Flash three of a kind：999999999999
 Three of a kind：9999999999
 Flash：99999999
 Pair：999999
-Hight cards：9999
-
+High cards：9999
 */
 
 const arrShape = ["D", "C", "H", "S"];
@@ -55,7 +54,7 @@ function deal(poker) {
   let threePokers = [];
   for (let i = 0; i < 3; i++) {
     let pokerEach = [];
-    pokerEach.push(poker[i], poker[i * 3], poker[i * 6]);
+    pokerEach.push(poker[i], poker[i + 14], poker[i + 28]);
     threePokers.push(
       pokerEach.sort(function(a, b) {
         return b - a;
@@ -64,8 +63,6 @@ function deal(poker) {
   }
   return threePokers;
 }
-
-//  console.log(deal(pokerSet()));
 
 function getNum(str) {
   return str.slice(0, 2);
