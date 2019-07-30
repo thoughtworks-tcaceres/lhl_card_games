@@ -42,7 +42,7 @@ function pokerSet() {
   let poker = [];
   for (let i = 0; i < 13; i++) {
     for (let j = 0; j < 4; j++) {
-      pokerUnsort.push(arrNum[i], arrShape[j]);
+      pokerUnsort.push(arrNum[i] + arrShape[j]);
     }
   }
 
@@ -137,5 +137,6 @@ function chickenDinner(threePokers) {
     return b - a;
   });
 
-  return (winner = arr[0]);
+  winner = arr[0];
+  return winner;
 }
