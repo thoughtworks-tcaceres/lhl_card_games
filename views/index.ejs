@@ -6,11 +6,13 @@
       <% include ./partials/carousel.ejs %>
     </div>
     <div class="main-border col-md-4 col-xs-12">
-      <% include ./partials/signUp.ejs %>
+      <% if(!user) { %>
+        <% include ./partials/signUp.ejs %>
+        <% } else {%>
+        TEXT HERE
+        <% } %>
     </div>
   </div>
 </div>
 
 <% include ./partials/footer.ejs %>
-
-

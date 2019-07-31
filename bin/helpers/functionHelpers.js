@@ -16,6 +16,7 @@ const emailExists = (email) => {
   });
 };
 
+//check if username already exists
 const usernameExists = (username) => {
   return getUserByUsernameDB(username).then((result) => {
     if (result) {
@@ -27,15 +28,18 @@ const usernameExists = (username) => {
 
 //verify if password entered is correct
 const validatePassword = (email, password) => {
-  return getUserByEmailDB(email).then((user) => bcrypt.compare(password, user.password));
+  return getUserByEmailDB(email).then((user) => {
+    return bcrypt.compare(password, user.password);
+  });
 };
 
+//add user to DB
 const addUser = (username, email, password) => {
   addUserDB(username, email, generateHashedPassword(password)).then((newUser) => {
     if (newUser) {
       return newUser;
     }
-    return false;
+    throw new Error();
   });
 };
 

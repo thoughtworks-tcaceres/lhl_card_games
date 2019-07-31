@@ -1,6 +1,5 @@
 const db = require('../../db/db');
 
-// ***** table: users *****
 //select all users
 const getAllUsersDB = () => {
   const queryString = `SELECT * FROM users;`;
@@ -55,7 +54,6 @@ const addUserDB = (username, email, password) => {
     });
 };
 
-// ***** table: games *****
 //all game info
 const getAllGameInfoDB = () => {
   const queryString = `SELECT * FROM games;`;
@@ -68,7 +66,6 @@ const getAllGameInfoDB = () => {
     .then((res) => res.rows);
 };
 
-// ***** table: sessions *****
 //all game sessions
 const getAllGameSessionsDB = () => {
   const queryString = `SELECT * FROM sessions;`;
@@ -81,19 +78,6 @@ const getAllGameSessionsDB = () => {
     .then((res) => res.rows);
 };
 
-//get active game sessions
-const getAllActiveGameSessionsDB = () => {
-  const queryString = `SELECT * FROM sessions WHERE is_active = 'true';`;
-  return db
-    .query({
-      text: queryString,
-      values: [],
-      name: 'get_all_active_game_sessions'
-    })
-    .then((res) => res.rows);
-};
-
-// ***** table: records *****
 //get all game records
 const getAllGameRecordsDB = () => {
   const queryString = `SELECT * FROM records;`;
@@ -122,6 +106,112 @@ const getUserGameRecordsDB = (username) => {
     .then((res) => res.rows);
 };
 
+//insert initial record
+const addRecordDB = (game_id) => {
+  const queryString = `INSERT INTO records (game_id)
+                      VALUES ($1) RETURNING *;`;
+  const queryParams = [`${game_id}`];
+  return db
+    .query({
+      text: queryString,
+      values: queryParams,
+      name: 'add_record_db'
+    })
+    .then((res) => {
+      return res.rows[0];
+    });
+};
+
+//insert initial session
+const addSessionDB = (user_id, record_id) => {
+  const queryString = `INSERT INTO sessions (user_id, record_id)
+                      VALUES ($1, $2) RETURNING *;`;
+  const queryParams = [`${user_id}`, `${record_id}`];
+  return db
+    .query({
+      text: queryString,
+      values: queryParams,
+      name: 'add_session_db'
+    })
+    .then((res) => {
+      return res.rows[0];
+    });
+};
+
+//insert initial session
+const addSessionFlexibleDB = (email_arr, record_id) => {
+  const queryString = `INSERT INTO sessions (user_id, record_id)
+                      SELECT id, $2
+                      FROM users
+                      WHERE email = ANY(ARRAY[$1]::text[])
+                      RETURNING *;`;
+  const queryParams = [email_arr, `${record_id}`];
+  return db
+    .query({
+      text: queryString,
+      values: queryParams,
+      name: 'add_session_flexible_db'
+    })
+    .then((res) => {
+      return res.rows;
+    });
+};
+
+//insert initial record
+const updateRecordDB = (game_id) => {
+  const queryString = `UPDATE records
+                      SET end_time = CURRENT_TIMESTAMP
+                      WHERE game_id = $1
+                      RETURNING *;`;
+  const queryParams = [`${game_id}`];
+  return db
+    .query({
+      text: queryString,
+      values: queryParams,
+      name: 'update_record_db'
+    })
+    .then((res) => {
+      return res.rows[0];
+    });
+};
+
+//insert initial session
+const updateSessionDB = (user_id, record_id) => {
+  const queryString = `UPDATE sessions
+                      SET win = true
+                      WHERE user_id = $1 and record_id = $2
+                      RETURNING *;`;
+  const queryParams = [`${user_id}`, `${record_id}`, `${win}`];
+  return db
+    .query({
+      text: queryString,
+      values: queryParams,
+      name: 'update_session_db'
+    })
+    .then((res) => {
+      return res.rows[0];
+      ß;
+    });
+  ß;
+};
+
+const updateSessionFlexibleDB = (user_id, record_id) => {
+  const queryString = `UPDATE sessions
+                      SET win = true
+                      WHERE user_id = $1 and record_id = $2
+                      RETURNING *;`;
+  const queryParams = [`${user_id}`, `${record_id}`];
+  return db
+    .query({
+      text: queryString,
+      values: queryParams,
+      name: 'update_session_flexible_db'
+    })
+    .then((res) => {
+      return res.rows[0];
+    });
+};
+
 module.exports = {
   getAllUsersDB,
   getUserByUsernameDB,
@@ -129,7 +219,12 @@ module.exports = {
   addUserDB,
   getAllGameInfoDB,
   getAllGameSessionsDB,
-  getAllActiveGameSessionsDB,
   getAllGameRecordsDB,
-  getUserGameRecordsDB
+  getUserGameRecordsDB,
+  addRecordDB,
+  addSessionDB,
+  updateRecordDB,
+  updateSessionDB,
+  addSessionFlexibleDB,
+  updateSessionFlexibleDB
 };
