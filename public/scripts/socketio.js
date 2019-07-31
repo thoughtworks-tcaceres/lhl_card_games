@@ -21,6 +21,5 @@ socket.on('leavingRoom', () => {
   console.log('leave all');
   for (let room in roomsLeft) {
     console.log(room);
-    //io.to(room).emit('addingNewUser', clients);
   }
 });

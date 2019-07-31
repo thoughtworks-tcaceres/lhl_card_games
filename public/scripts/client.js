@@ -1,43 +1,123 @@
-let socket = io.connect('http://localhost:1000');
+let socket = io.connect('http://localhost:1000/');
 
 console.log('hello world');
 
-const createBtn = document.getElementById('createBtn');
-const assignRoomName = document.getElementById('assignRoomName');
-const roomList = document.getElementById('roomList');
+// Handle socket response
 
-createBtn.addEventListener('click', () => {
-  socket.emit('creatingRoom', {
-    roomName: assignRoomName.value
-  });
+// --------------------------
+
+socket.on('directToGame', (data) => {
+  // console.log(data)
+  // window.location.href = `/enterGame/${data.uniqueRoomName}`;
+  $('#lobby').slideUp(100);
+  $('#showGame').toggle(1000);
 });
 
-let createdRooms = document.getElementsByClassName('createdRooms');
+// --------------------------
+// --------------------------
+// --------------------------
 
-for (let room of createdRooms) {
-  room.addEventListener('click', () => {
-    socket.emit('leavingRoom');
-    socket.emit('joiningRoom', room.value);
-  });
-}
-
-socket.on('creatingRoom', (data) => {
-  console.log('2');
-
-  const btn = document.createElement('button');
-  btn.addEventListener('click', () => {
-    console.log('Hello hi');
-    socket.emit('joiningRoom', data.roomName);
-  });
-  btn.innerHTML = data.roomName;
-  roomList.appendChild(btn);
-});
-
-const logs = document.getElementById('logs');
-
-socket.on('addingNewUser', (data) => {
-  logs.innerHTML = '';
-  for (let key in data) {
-    logs.innerHTML += `<p>${key}</p>`;
+socket.on('updateRoomStatus', (data) => {
+  logs.innerHTML = '<h1>Welcome to room ' + data[1] + '<h1>';
+  for (let key of data[0]) {
+    if (data[2].includes(key)) {
+      logs.innerHTML += `<p style="color: blue">${key} I'm ready!</p>`;
+    } else {
+      logs.innerHTML += `<p>${key}</p>`;
+    }
+  }
+  if (data[2].includes(socket.id)) {
+    $('#joinGameBtn').css('display', 'none');
+    $('#waitingMsg').css('display', 'block');
+  } else {
+    if (data[0].length >= data[4]) {
+      $('#joinGameBtn').css('display', 'block');
+    } else {
+      $('#joinGameBtn').css('display', 'none');
+    }
+    $('#waitingMsg').css('display', 'none');
   }
 });
+
+// --------------------------
+// --------------------------
+// --------------------------
+
+socket.on('moveUsers', (data) => {
+  alert('MOVE!');
+});
+
+socket.on('createNewRoom', (data) => {
+  const newBtn = document.createElement('button');
+  newBtn.addEventListener('click', () => {
+    socket.emit('joinARoom', data);
+  });
+  newBtn.innerHTML = data.roomId;
+  newBtn.setAttribute('class', 'room');
+  document.getElementById('availableRoomsFor' + data.gameId).appendChild(newBtn);
+});
+
+// Loading jquery
+
+$(document).ready(function() {
+  roomJoiner();
+  dynamicRoom();
+  showRoomsForGame();
+  // userRedirection();
+  loadJoinGameBtn();
+});
+
+// To be loaded on jquery when DOM is ready
+
+const loadJoinGameBtn = function() {
+  $('#joinGameBtn').on('click', function() {
+    socket.emit('handleJoinGameEvent');
+  });
+};
+
+const roomJoiner = function() {
+  $('.room').on('click', function() {
+    // IMPORTANT //
+    // const enteredPasscode = prompt('This room is locked. Enter passcode here')
+    // console.log(enteredPasscode)
+    // console.log('ENDING MAS')
+    // return;
+    //////////////////////
+
+    socket.emit('joinARoom', {
+      roomId: $(this).attr('data-roomid'),
+      gameId: $(this).attr('data-gameid')
+    });
+  });
+};
+
+const dynamicRoom = function() {
+  $('.roomCreator').on('submit', function(event) {
+    event.preventDefault();
+    const gameId = $(this).attr('data-gamename');
+    console.log('here');
+    $.ajax('/games/createRoom', {
+      type: 'POST',
+      data: $(this).serialize(),
+      dataType: 'text'
+    })
+      .done(function(data) {
+        console.log('successful creation');
+        socket.emit('createNewRoom', {
+          roomId: data,
+          gameId: gameId,
+          passcode: $(`#chosenPasscodeFor${gameId}`).val()
+        });
+      })
+      .fail(function(error) {
+        console.log('Ajax failed: ', error);
+      });
+  });
+};
+
+const showRoomsForGame = function() {
+  $('.game').on('click', function(event) {
+    $('.roomList').hide();
+    $(`#${$(this).attr('data-gamename')}`).toggle(500);
+  });
+};
