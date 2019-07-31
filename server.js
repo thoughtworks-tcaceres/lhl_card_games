@@ -1,5 +1,9 @@
 // load .env data into process.env
 require('dotenv').config();
+//JJ stuff==========JJ stuff===============
+const Game = require('./Games/WhosBigger');
+const Deck = require('./Games/Deck')
+//JJ stuff ===========JJstuff ==============
 
 // Web server config
 const PORT = process.env.PORT || 1000;
@@ -247,4 +251,20 @@ io.on('connection', (socket) => {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom});
     }
   });
+
+
+
+
+
+
+
+
 });
+//JJ's POOP++++++++++++++++++++++++++++++==============
+//io.sockets.adapter.rooms[joinedRoom].sockets --- returns an object 
+io.on('connection', (socket) => {
+  
+
+
+
+})
