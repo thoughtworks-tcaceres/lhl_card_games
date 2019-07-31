@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {
-  generateHashedPassword,
-  usernameExists,
-  emailExists,
-  validatePassword,
-  generateCookie,
-  addUser
-} = require('../bin/helpers/functionHelpers.js');
+const {usernameExists, emailExists, validatePassword, addUser} = require('../bin/helpers/functionHelpers.js');
 
 router.get('/', (req, res) => {
   res.render('index');
@@ -19,7 +12,7 @@ router.post('/login', (req, res) => {
   validatePassword(email, password)
     .then((result) => {
       if (result) {
-        req.session.user = email;
+        req.session.email = email;
         req.flash('success', 'Welcome back');
         return res.redirect('/');
       }
@@ -27,14 +20,13 @@ router.post('/login', (req, res) => {
       return res.redirect('/');
     })
     .catch((err) => {
-      console.log('error route section');
       req.flash('error', 'Login error');
       return res.redirect('/');
     });
 });
 
 router.post('/logout', (req, res) => {
-  req.session = null;
+  req.session.email = null;
   return res.redirect('/');
 });
 
@@ -62,6 +54,7 @@ router.post('/register', (req, res) => {
     .then(() => addUser(username, email, password))
     .then(() => {
       req.flash('success', 'new user added');
+      req.session.email = email;
       return res.redirect('/');
     })
     .catch(() => {

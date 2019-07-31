@@ -1,0 +1,25 @@
+<% include ./partials/header.ejs %>
+
+  <div id = "gameList" style= "border: solid">
+      <% for (let game in game_data) { %>
+      <button  class="game" value=<%= game %> ><%= game %></button>
+      <% } %>
+  </div>
+  <br>
+  <input id="assignRoomName" placeholder="Your room name here"/>
+  <button id="createBtn">Start a room</button>
+
+  <ul id="roomList" style="border: solid">
+
+
+    <% for (key in room_data) { %>
+      <button  value=<%= key %> class="createdRooms"><%= key %></button>
+    <% } %>
+  </ul>
+
+  <div id="logs" style="border: solid; background-color: yellow">
+    <br/>
+    <br/>
+  </div>
+
+<% include ./partials/footer.ejs %>
