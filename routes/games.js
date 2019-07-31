@@ -2,21 +2,30 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/db');
 const {isLoggedIn} = require('../bin/helpers/middleware');
+const {
+  getRoomGameId,
+  getNumberOfUsers,
+  getJoinedRooms,
+  validateNewRoom,
+  insertNewRoom,
+  nameRefine
+} = require('../bin/helpers/functionHelpers');
 
-const room_data = {
-  rabbit: {},
-  dog: {},
-  Woodpecker: {}
-};
-
-const game_data = {
-  whosbigger: {room_data: {}},
-  kingsCup: {room_data: {}},
-  goofy: {room_data: {}}
-};
+const game_data = require('../db/tempDB');
 
 router.get('/', isLoggedIn, (req, res) => {
-  res.render('lobby', {room_data, game_data});
+  console.log(game_data);
+  res.render('lobby', {game_data});
+});
+
+router.post('/createRoom', function(req, res) {
+  console.log('trying to add newroom');
+  const refinedName = nameRefine(req.body.selectedName);
+  if (validateNewRoom(refinedName, req.body.gameName, game_data)) {
+    res.send(refinedName);
+  } else {
+    console.log('This name is invalid');
+  }
 });
 
 module.exports = router;

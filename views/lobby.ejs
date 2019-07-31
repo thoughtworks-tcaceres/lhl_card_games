@@ -1,25 +1,62 @@
-<% include ./partials/header.ejs %>
+<% include ./partials/header %>
 
-  <div id = "gameList" style= "border: solid">
-      <% for (let game in game_data) { %>
-      <button  class="game" value=<%= game %> ><%= game %></button>
-      <% } %>
+<div id="lobby">
+
+<!-- DIFFERENCE -->
+  <div style= "border: solid">
+
+    <% for (let game in game_data) { %>
+      <button  class="game" data-gamename="<%= game %>" ><%= game %></button>
+    <% } %>
   </div>
   <br>
-  <input id="assignRoomName" placeholder="Your room name here"/>
-  <button id="createBtn">Start a room</button>
 
-  <ul id="roomList" style="border: solid">
+  <!-- --------------------------------------------------------------------- -->
 
+  <div>
+    <% for (let game in game_data) { %>
+      <div class="roomList" id=<%=game%> style="background-color: green; display: none;">
+        <!--  -->
+        <br/>
 
-    <% for (key in room_data) { %>
-      <button  value=<%= key %> class="createdRooms"><%= key %></button>
+        <form method="POST" action="/games/createRoom" class="roomCreator" data-gamename=<%=game%>>
+          <!-- ONE class="makeAroom" -->
+          <input class="makeAroom" name="selectedName" placeholder="Room name here">
+          <!--  -->
+          <input type="hidden" name="gameName" value = "<%=game%>">
+          <% let uniquePasscodeForGame = 'chosenPasscodeFor' + game; %>
+          <input id=<%=uniquePasscodeForGame%> placeholder="Passcode (Optional)">
+          <!-- TWO class="createRoom"-->
+          <button class="createRoom" type="submit">Create a room</button>
+          <!--  -->
+        </form>
+        <br/>
+        <!--  -->
+        <% let uniqueBtnSectionId = 'availableRoomsFor' + game; %>
+        <div id=<%= uniqueBtnSectionId %>>
+          <% for (let room in game_data[game].room_data) { %>
+            <button class="room" data-gameid=<%=game%> data-roomid=<%= room %> value=<%=room%>><%=room%></button>
+          <% } %>
+        </div>
+      </div>
     <% } %>
-  </ul>
+  </div>
 
+  <!-- --------------------------------------------------------------------- -->
+
+  <br>
   <div id="logs" style="border: solid; background-color: yellow">
     <br/>
+
     <br/>
   </div>
 
-<% include ./partials/footer.ejs %>
+  <!--  -->
+  <button id="joinGameBtn" style="display: none;">JOIN GAME!</button>
+  <p style="display: none;" id="waitingMsg">Waiting for other players to join...</p>
+  <!--  -->
+
+</div>
+
+  <% include ./mainPage %>
+  <% include ./partials/footer %>

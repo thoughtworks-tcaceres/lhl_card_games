@@ -16,6 +16,8 @@ const session = require('express-session')({
 });
 const sharedsession = require('express-socket.io-session');
 
+const game_data = require('./db/tempDB.js');
+
 const {
   getAllUsersDB,
   getUserByUsernameDB,
@@ -35,13 +37,13 @@ const {
 } = require('./bin/helpers/dbHelpers.js');
 
 const {
-  generateHashedPassword,
-  usernameExists,
-  emailExists,
-  validatePassword,
-  addUser
-} = require('./bin/helpers/functionHelpers.js');
-
+  getRoomGameId,
+  getNumberOfUsers,
+  getJoinedRooms,
+  validateNewRoom,
+  insertNewRoom,
+  nameRefine
+} = require('./bin/helpers/functionHelpers');
 //additional setups
 const flash = require('connect-flash');
 
@@ -102,6 +104,7 @@ io.use(
 
 io.on('connection', (socket) => {
   console.log('user email cookie:', socket.handshake.session.email);
+  console.log('USER INFORMATION: ', socket.handshake.headers);
 
   // //on game start up - add record and session
   // addRecordDB(3) //(game_id)
@@ -120,27 +123,128 @@ io.on('connection', (socket) => {
   //   //array of object that updates each rank for a single --> same thing as regularupdate session?
   //   .catch((err) => console.log(err));
 
-  socket.on('creatingRoom', (data) => {
-    if (room_data[data.roomName]) {
+  let currentRoom;
+
+  // Handle the event when the user is disconnected
+
+  socket.on('disconnect', () => {
+    if (!currentRoom) {
+      return;
+    }
+    let room_info = io.sockets.adapter.rooms[currentRoom];
+    let roomGameId = getRoomGameId(currentRoom);
+    if (room_info) {
+      if (
+        Object.keys(room_info.sockets).length < game_data[roomGameId.gameId].min_players ||
+        Object.keys(room_info.sockets).length ===
+          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
+      ) {
+        game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers = [];
+      }
+      io.sockets
+        .to(currentRoom)
+        .emit('updateRoomStatus', [
+          Object.keys(room_info.sockets),
+          currentRoom,
+          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers,
+          socket.id,
+          game_data[roomGameId.gameId].min_players
+        ]);
     } else {
-      room_data[data.roomName] = {};
-      io.sockets.emit('creatingRoom', data);
+      game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers = [];
     }
   });
-  socket.on('joiningRoom', (data) => {
-    socket.join(data);
-    let clients = io.sockets.adapter.rooms[data].sockets;
-    io.sockets.to(data).emit('addingNewUser', clients);
+
+  // Create new room
+
+  socket.on('createNewRoom', (data) => {
+    insertNewRoom(data.roomId, data.gameId, data.passcode, game_data);
+    io.sockets.emit('createNewRoom', data);
   });
 
-  socket.on('leavingRoom', () => {
-    console.log('LOOK HERER SDLFKJSD : ', socket.rooms);
-    const roomsLeft = socket.rooms;
-    socket.leaveAll();
-    console.log('leave all');
-    for (let room in roomsLeft) {
-      console.log(room);
-      //io.to(room).emit('addingNewUser', clients);
+  // Join a room
+
+  socket.on('joinARoom', (data) => {
+    // Check number of users
+
+    const numberOfExistingUsers = getNumberOfUsers(data.gameId, data.roomId, io);
+    if (numberOfExistingUsers >= game_data[data.gameId].max_players) {
+      console.log('Room is full');
+      return;
+    }
+
+    // Check to see if user is trying to join the room he/she has already joined
+
+    const uniqueRoomName = `${data.gameId}-${data.roomId}`;
+    const joinedRooms = getJoinedRooms(game_data, io, socket.id);
+    if (joinedRooms.includes(uniqueRoomName)) {
+      return;
+    }
+
+    // Leave all the rooms
+
+    for (let joinedRoom of joinedRooms) {
+      socket.leave(joinedRoom);
+      let room_info = io.sockets.adapter.rooms[joinedRoom];
+      let roomGameId = getRoomGameId(joinedRoom);
+      if (room_info) {
+        if (
+          Object.keys(room_info.sockets).length < game_data[roomGameId.gameId].min_players ||
+          Object.keys(room_info.sockets).length ===
+            game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
+        ) {
+          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers = [];
+        }
+        io.sockets
+          .to(joinedRoom)
+          .emit('updateRoomStatus', [
+            Object.keys(room_info.sockets),
+            joinedRoom,
+            game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers,
+            socket.id,
+            game_data[roomGameId.gameId].min_players
+          ]);
+      } else {
+        game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers = [];
+      }
+    }
+
+    // Join the room
+
+    currentRoom = uniqueRoomName;
+    socket.join(uniqueRoomName);
+    const clients = io.sockets.adapter.rooms[uniqueRoomName].sockets;
+    io.sockets
+      .to(uniqueRoomName)
+      .emit('updateRoomStatus', [
+        Object.keys(clients),
+        currentRoom,
+        game_data[data.gameId].room_data[data.roomId].joinedPlayers,
+        socket.id,
+        game_data[data.gameId].min_players
+      ]);
+  });
+
+  // Trigger user joining event
+
+  socket.on('handleJoinGameEvent', (data) => {
+    const clients = io.sockets.adapter.rooms[currentRoom].sockets;
+    const roomGameId = getRoomGameId(currentRoom);
+    game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.push(socket.id);
+    if (Object.keys(clients).length > game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
+      io.sockets
+        .to(currentRoom)
+        .emit('updateRoomStatus', [
+          Object.keys(clients),
+          currentRoom,
+          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers,
+          socket.id,
+          game_data[roomGameId.gameId].min_players
+        ]);
+    } else if (
+      Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
+    ) {
+      io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom});
     }
   });
 });
