@@ -13,6 +13,9 @@ socket.on('directToGame', (data) => {
   console.log('MAKI CHAN')
   console.log(`#gameFor${data.uniqueRoomName}`)
   $(`#gameFor${data.gameId}`).toggle(1000);
+
+  
+
 });
 
 // --------------------------
