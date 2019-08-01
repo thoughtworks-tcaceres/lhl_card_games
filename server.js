@@ -2,11 +2,11 @@
 require('dotenv').config();
 //JJ stuff==========JJ stuff===============
 const Game = require('./Games/WhosBigger');
-const Deck = require('./Games/Deck')
+const Deck = require('./Games/Deck');
 //JJ stuff ===========JJstuff ==============
 
 // Web server config
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 1000;
 const ENV = process.env.ENV || 'development';
 const express = require('express');
 const sass = require('node-sass-middleware');
@@ -146,12 +146,12 @@ io.on('connection', (socket) => {
 
   //on game completion - update record and session
   updateRecordDB(50) //(record_id)
-    .then((data) => updateSessionFlexibleDB('t@gmail.com', data.id))
+    .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
     //array of object that updates each rank for a single --> same thing as regularupdate session?
     .catch((err) => console.log(err));
 
   let currentRoom;
-  
+
   //00000000000000000000000000000000000
   userCurrentRoom[socket.id] = null;
   //000000000000000000000000000
@@ -159,7 +159,6 @@ io.on('connection', (socket) => {
   // Handle the event when the user is disconnected
 
   socket.on('disconnect', () => {
-
     //0000000000000000000000000000
     delete userCurrentRoom[socket.id];
     //0000000000000000000000000000000
@@ -245,12 +244,9 @@ io.on('connection', (socket) => {
       }
     }
 
-  
-
     // Join the room
 
     currentRoom = uniqueRoomName;
-
 
     ///000000000000000000000000000000000000000
     userCurrentRoom[socket.id] = currentRoom;
@@ -285,7 +281,9 @@ io.on('connection', (socket) => {
           socket.id,
           game_data[roomGameId.gameId].min_players
         ]);
-    } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
+    } else if (
+      Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
+    ) {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
 
       // ADD MY STUFFS HERE
@@ -294,34 +292,30 @@ io.on('connection', (socket) => {
         console.log('We are joining this: ', roomGameId.gameId);
       } else if (roomGameId.gameId === 'kingsCup') {
         //////////
-        console.log('We are joining this: ', roomGameId.gameId)
-        io.sockets.to(currentRoom).emit('kingsCupSetUp', [
-          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers
-        ]);
+        console.log('We are joining this: ', roomGameId.gameId);
+        io.sockets
+          .to(currentRoom)
+          .emit('kingsCupSetUp', [game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers]);
         kingsCupData[currentRoom] = {};
         for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
           kingsCupData[currentRoom][id] = false;
         }
-        console.log('status here', kingsCupData)
+        console.log('status here', kingsCupData);
         ////////////////////
       } else if (roomGameId.gameId === 'blackjack') {
-        console.log('We are joining this: ', roomGameId.gameId)
+        console.log('We are joining this: ', roomGameId.gameId);
       } else if (roomGameId.gameId === 'goofy') {
-        console.log('We are joining this: ', roomGameId.gameId)
+        console.log('We are joining this: ', roomGameId.gameId);
       }
-      
-
     }
   });
   socketForKingsCup(io, socket);
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
-
 });
 //JJ's POOP++++++++++++++++++++++++++++++==============
-//io.sockets.adapter.rooms[joinedRoom].sockets --- returns an object 
+//io.sockets.adapter.rooms[joinedRoom].sockets --- returns an object
 io.on('connection', (socket) => {
-
-    socket.join("room1") 
-    console.log("LOOK OVER HERE1",io.sockets.adapter.rooms['room1'].sockets)
-    console.log(socket.id)  
-})
+  socket.join('room1');
+  console.log('LOOK OVER HERE1', io.sockets.adapter.rooms['room1'].sockets);
+  console.log(socket.id);
+});

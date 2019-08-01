@@ -1,7 +1,7 @@
 const db = require('../../db/db');
 
 //player rankings by game type
-const playerRankingsByGameType = () => {
+const getPlayerRankingsByGameType = () => {
   const queryString = `select u.username as username, u.email as email, g.name as "game name",
                       sum(case when s.win = true then 1.00 else 0.00 end) as total_wins,
                       count(*) as total_games,
@@ -16,21 +16,24 @@ const playerRankingsByGameType = () => {
     .query({
       text: queryString,
       values: [],
-      name: 'get_all_users'
+      name: 'get_player_rankings_game_type'
     })
     .then((res) => res.rows);
 };
 
 //archive of games played by each player
-const archiveGames = () => {
-  const queryString = `
-
-  `;
+const getArchivedGames = () => {
+  const queryString = `select u.username as "username", u.email as "email" , g.name as "game name", r.id as "game_id", case when s.win = true then 'win' else 'loss' end as "win/loss"
+                        from users u
+                        join sessions s on s.user_id = u.id
+                        join records r on r.id = s.record_id
+                        join games g on g.id = r.game_id
+                        where r.end_time IS NOT NULL;`;
   return db
     .query({
       text: queryString,
       values: [],
-      name: 'get_all_users'
+      name: 'get_archived_games'
     })
     .then((res) => res.rows);
 };
@@ -262,5 +265,6 @@ module.exports = {
   updateSessionDB,
   addSessionFlexibleDB,
   updateSessionFlexibleDB,
-  playerRankingsByGameType
+  getPlayerRankingsByGameType,
+  getArchivedGames
 };
