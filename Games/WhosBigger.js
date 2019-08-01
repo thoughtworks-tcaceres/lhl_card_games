@@ -21,8 +21,10 @@ class WhosBigger{
     }
     setupPlayers(sockets){
         
+
         for(let socket in sockets){
             this.playerPool[socket] = new Player(socket)
+
             }
         }
     setupPlayerQueue(){
