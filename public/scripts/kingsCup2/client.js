@@ -37,18 +37,30 @@ function getRules(insertCardRule, insertCardImg, card){
 
 
 
-// $(document).ready(function() {
 
-// });
+$(document).ready(function() {
+    theHandler();
+});
 
-socket.on('kingsCup2Attendance', (data) => {
+function theHandler() {
+    $('#kc2drawButton').on("click", function() {
+        console.log("this is clicked");
+        socket.emit("whatever", null)
+    })
 
-  console.log('goes to emit')
-  console.log('--------------------', data)
+    
+}
 
-  const userList = document.getElementById('kingsCup2JayJayDidThis');
-  userList.innerHTML = "<p>USER LIST: </P>";
-  for (let id in data[0]) {
-    userList.innerHTML += `<p>${id}</p>`;
-  }
+socket.on('kcdraw',(data)=>{
+    console.log("response recieved")
+    // $('.card-shown').html(data);
+    $('.card-shown').html(`<img src="/PNG/${data}.png"/>`)
 })
+
+
+socket.on('initgame', (data)=>{
+    $("#drawdeckarea").append(`<button id="kc2drawButton">Draw Card</button>`)
+    theHandler();
+console.log("testing this new button");     
+})
+
