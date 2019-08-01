@@ -110,8 +110,11 @@ io.use(
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
+const { kingsCup2 } = require('./public/scripts/kingsCup2/server')
 
 const kingsCupData = {};
+const kingsCup2Data = {}
+
 const userCurrentRoom = {};
 
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
@@ -277,12 +280,11 @@ io.on('connection', (socket) => {
     } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
 
-      // ADD MY STUFFS HERE
+      // Setup for the start of the game
 
       if (roomGameId.gameId === 'whosbigger') {
         console.log('We are joining this: ', roomGameId.gameId);
       } else if (roomGameId.gameId === 'kingsCup') {
-        //////////
         console.log('We are joining this: ', roomGameId.gameId)
         io.sockets.to(currentRoom).emit('kingsCupSetUp', [
           game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers
@@ -292,11 +294,29 @@ io.on('connection', (socket) => {
           kingsCupData[currentRoom][id] = false;
         }
         console.log('status here', kingsCupData)
-        ////////////////////
       } else if (roomGameId.gameId === 'blackjack') {
         console.log('We are joining this: ', roomGameId.gameId)
       } else if (roomGameId.gameId === 'goofy') {
         console.log('We are joining this: ', roomGameId.gameId)
+      } else if (roomGameId.gameId === 'kingsCup2') {
+
+
+        
+        console.log('We are joining this: ', roomGameId.gameId)
+
+        kingsCup2Data[currentRoom] = {};
+        for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
+          kingsCup2Data[currentRoom][id] = {};
+        }
+
+
+        // console.log(kingsCup2Data)
+        // console.log(userCurrentRoom)
+        // console.log(currentRoom)
+
+        io.sockets.to(currentRoom).emit('kingsCup2Attendance', [
+          kingsCup2Data[currentRoom]
+        ]);
       }
       
 
@@ -305,6 +325,6 @@ io.on('connection', (socket) => {
 
 
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
-
+  kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
 
 });

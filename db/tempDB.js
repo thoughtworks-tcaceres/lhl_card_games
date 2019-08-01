@@ -36,6 +36,16 @@ let game_data = {
     max_players: 8,
     min_players: 2,
     room_data: {}
+  },
+  kingsCup2:{
+    max_players:10,
+    min_players:2,
+    room_data:{
+      woodpecker: {
+        passcode: null,
+        joinedPlayers: []
+      }
+    }
   }
 };
 
