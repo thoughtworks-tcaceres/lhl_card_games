@@ -6,7 +6,7 @@ const Deck = require('./Games/Deck')
 //JJ stuff ===========JJstuff ==============
 
 // Web server config
-const PORT = process.env.PORT || 1000;
+const PORT = process.env.PORT || 8080;
 const ENV = process.env.ENV || 'development';
 const express = require('express');
 const sass = require('node-sass-middleware');
@@ -248,17 +248,19 @@ io.on('connection', (socket) => {
           socket.id,
           game_data[roomGameId.gameId].min_players
         ]);
-    } else if (
-      Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
-    ) {
-      io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom});
+    } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
+      io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
     }
   });
 
 
 
 
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
+const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
+
+socketForKingsCup();
 
 
 
@@ -276,3 +278,4 @@ io.on('connection', (socket) => {
 
 
 })
+
