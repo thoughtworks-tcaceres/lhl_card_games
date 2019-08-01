@@ -1,5 +1,9 @@
 // load .env data into process.env
 require('dotenv').config();
+//JJ stuff==========JJ stuff===============
+const Game = require('./Games/WhosBigger');
+const Deck = require('./Games/Deck')
+//JJ stuff ===========JJstuff ==============
 
 // Web server config
 const PORT = process.env.PORT || 8080;
@@ -120,24 +124,28 @@ const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
 
 io.on('connection', (socket) => {
   console.log('user email cookie:', socket.handshake.session.email);
-  console.log('USER INFORMATION: ', socket.handshake.headers);
+  // console.log('USER INFORMATION: ', socket.handshake.headers);
 
-  // //on game start up - add record and session
-  // addRecordDB(3) //(game_id)
-  //   .then(
-  //     (data) => addSessionFlexibleDB(['t@gmail.com', 'a@gmail.com'], data.id)
-  //     /*
-  //     get list of userNames in the room, create a record in the sessions
-  //     database for each user
-  //     */
-  //   ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
-  //   .catch((err) => console.log(err));
+  //on game start up - add record and session
+  addRecordDB(3) //(game_id)
+    .then(
+      (data) =>
+        addSessionFlexibleDB(
+          ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
+          data.id
+        )
+      /*
+      get list of userNames in the room, create a record in the sessions
+      database for each user
+      */
+    ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
+    .catch((err) => console.log(err));
 
-  // //on game completion - update record and session
-  // updateRecordDB(2) //(game_id)
-  //   .then((data) => updateSessionFlexibleDB('t@gmail.com', data.id))
-  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
-  //   .catch((err) => console.log(err));
+  //on game completion - update record and session
+  updateRecordDB(50) //(record_id)
+    .then((data) => updateSessionFlexibleDB('t@gmail.com', data.id))
+    //array of object that updates each rank for a single --> same thing as regularupdate session?
+    .catch((err) => console.log(err));
 
   let currentRoom;
 
@@ -225,9 +233,12 @@ io.on('connection', (socket) => {
       }
     }
 
+  
+
     // Join the room
 
     currentRoom = uniqueRoomName;
+
     socket.join(uniqueRoomName);
     const clients = io.sockets.adapter.rooms[uniqueRoomName].sockets;
     io.sockets
@@ -265,9 +276,21 @@ io.on('connection', (socket) => {
 
     }
   });
-
-
   socketForKingsCup(io, socket);
 
 
+
 });
+//JJ's POOP++++++++++++++++++++++++++++++==============
+//io.sockets.adapter.rooms[joinedRoom].sockets --- returns an object 
+io.on('connection', (socket) => {
+
+    socket.join("room1") 
+    console.log("LOOK OVER HERE1",io.sockets.adapter.rooms['room1'].sockets)
+    console.log(socket.id)  
+
+  
+ 
+
+
+})
