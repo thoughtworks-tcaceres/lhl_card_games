@@ -1,8 +1,8 @@
 // load .env data into process.env
 require('dotenv').config();
 //JJ stuff==========JJ stuff===============
-const Game = require('./Games/WhosBigger');
-const Deck = require('./Games/Deck')
+const Game = require('./Games/KingsCup');
+
 //JJ stuff ===========JJstuff ==============
 
 // Web server config
@@ -316,24 +316,28 @@ io.on('connection', (socket) => {
         console.log('We are joining this: ', roomGameId.gameId)
 
         kingsCup2Data[currentRoom] = {};
+        kingsCup2Data[currentRoom].players = {}
         for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
-          kingsCup2Data[currentRoom][id] = {};
+          
+          kingsCup2Data[currentRoom].players[id] =  {};
+          
         }
-
+        console.log(kingsCup2[currentRoom])
+        kingsCup2Data[currentRoom].game = new Game(Object.keys(kingsCup2Data[currentRoom].players), currentRoom)
+        io.to(kingsCup2Data[currentRoom].game.getPlayers()[0]).emit("initgame")
+        //console.log("look here!!! ================", Object.keys(kingsCup2Data[currentRoom].players));
 
         // console.log(kingsCup2Data)
         // console.log(userCurrentRoom)
         // console.log(currentRoom)
 
-        io.sockets.to(currentRoom).emit('kingsCup2Attendance', [
-          kingsCup2Data[currentRoom]
-        ]);
+       
       }
       
 
     }
   });
-  socketForKingsCup(io, socket);
+  //socketForKingsCup(io, socket);
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
 
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
