@@ -1,8 +1,6 @@
 let socket = io.connect('https://lhl-card-games.herokuapp.com/');
 // let socket = io.connect('http://localhost:1000/');
 
-console.log('hello world');
-
 // Handle socket response
 
 // --------------------------
