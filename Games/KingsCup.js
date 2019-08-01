@@ -1,8 +1,11 @@
+
 const Deck = require('./Deck')
 const Player = require('./Player')
 
-class WhosBigger{
+class KingsCup{
+
     constructor(sockets, gameRoomName){
+        this.endGame = false;
         this.roomName = gameRoomName;
         this.playerPool = {};
         this.playerQueue = [];
@@ -19,12 +22,11 @@ class WhosBigger{
 
         console.log(this.playerQueue)
     }
+
     setupPlayers(sockets){
         
-
         for(let socket in sockets){
             this.playerPool[socket] = new Player(socket)
-
             }
         }
     setupPlayerQueue(){
@@ -32,37 +34,18 @@ class WhosBigger{
             this.playerQueue.push(this.playerPool[player].id)
         }
     }
-    
-    
-    //deal a card to a specific player and return value of card
     dealCard(playerID){
         const player = this.playerPool[playerID];
         player.drawCard(this.deck);
         return player.getHand()[player.getHand().length-1];
     }
 
-
-    getCard(playerID){
-        const player = this.playerPool[playerID];
-        return player.getHand()[0];
-
+    setEndGame(bool){
+        this.endGame = bool;
     }
-    getPlayers(){
-        return this.playerPool;
+    getEndGame(){
+        return this.endGame;
     }
-
-    evaluateWinner(){
-        
-        for(let player in playerPool){
-            if(this.bestPlayer.getHand()[0] < player.getHand()[0]){
-                this.bestPlayer = player;
-            }
-        }
-
-        return this.bestPlayer;
-
-    }
-
     iteratePlayer(){
         if(this.playerTurnNumber === this.playerQueue.length -1){
             this.playerTurnNumber = 0;
@@ -72,7 +55,32 @@ class WhosBigger{
         return this.playerPool[this.playerQueue[this.playerTurnNumber]]
     }
 
+    getDeck(){
+        return this.deck;
+    }
+    startGame(){
+        while(!this.getEndGame()&& this.getDeck().getLength() > 0){
 
-}
+            //get players turn 
+            //on player click
+            //if they are player get new card 
+            //display to all
+            //rotate player / set player = true in html
+            //check deck size != 0
+            //if deck size = 0
+           
+//show cards to all players (broadcast to rooms)
+//
 
-module.exports = WhosBigger
+
+
+            this.iteratePlayer();
+
+
+        if(this.getDeck().getLength() <=0) this.setEndGame(true);
+        
+    }
+
+
+}}
+
