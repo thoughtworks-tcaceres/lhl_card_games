@@ -1,5 +1,40 @@
 const db = require('../../db/db');
 
+//player rankings by game type
+const playerRankingsByGameType = () => {
+  const queryString = `select u.username as username, u.email as email, g.name as "game name",
+                      sum(case when s.win = true then 1.00 else 0.00 end) as total_wins,
+                      count(*) as total_games,
+                      round((sum(case when s.win = true then 1.00 else 0.00 end)/count(*))*100,2) as win_percent
+                      from users u
+                      join sessions s on u.id = s.user_id
+                      join records r on r.id = s.record_id
+                      join games g on g.id = r.game_id
+                      where r.end_time IS NOT NULL
+                      group by u.id, g.id`;
+  return db
+    .query({
+      text: queryString,
+      values: [],
+      name: 'get_all_users'
+    })
+    .then((res) => res.rows);
+};
+
+//archive of games played by each player
+const archiveGames = () => {
+  const queryString = `
+
+  `;
+  return db
+    .query({
+      text: queryString,
+      values: [],
+      name: 'get_all_users'
+    })
+    .then((res) => res.rows);
+};
+
 //select all users
 const getAllUsersDB = () => {
   const queryString = `SELECT * FROM users;`;
@@ -194,12 +229,13 @@ const updateSessionDB = (user_id, record_id) => {
     });
 };
 
-const updateSessionFlexibleDB = (user_id, record_id) => {
+const updateSessionFlexibleDB = (email_arr, record_id) => {
   const queryString = `UPDATE sessions
                       SET win = true
-                      WHERE user_id = $1 and record_id = $2
+                      WHERE record_id = $2 and user_id = ANY(SELECT id FROM users
+                                                          WHERE email = ANY($1))
                       RETURNING *;`;
-  const queryParams = [`${user_id}`, `${record_id}`];
+  const queryParams = [email_arr, `${record_id}`];
   return db
     .query({
       text: queryString,
@@ -225,5 +261,6 @@ module.exports = {
   updateRecordDB,
   updateSessionDB,
   addSessionFlexibleDB,
-  updateSessionFlexibleDB
+  updateSessionFlexibleDB,
+  playerRankingsByGameType
 };
