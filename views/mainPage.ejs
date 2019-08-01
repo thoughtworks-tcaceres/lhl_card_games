@@ -1,4 +1,5 @@
 <% for (let key in game_data) { %>
-  <% let uniqueIdForGameElement = "gameFor" + key %>
-  <h1 id=<%= uniqueIdForGameElement %> style="display: none;">Game of <%= key %> here</h1>
+  <!-- <% let uniqueIdForGameElement = "gameFor" + key %> -->
+  <!-- <h1 id=<%= uniqueIdForGameElement %> style="display: none;">Game of <%= key %> here</h1> -->
+  <%- include(key) %>
 <% } %>
