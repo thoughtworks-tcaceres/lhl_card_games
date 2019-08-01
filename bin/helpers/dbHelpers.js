@@ -140,10 +140,11 @@ const addSessionDB = (user_id, record_id) => {
 
 //insert initial session
 const addSessionFlexibleDB = (email_arr, record_id) => {
+  console.log('I am here');
   const queryString = `INSERT INTO sessions (user_id, record_id)
                       SELECT id, $2
                       FROM users
-                      WHERE email = ANY(ARRAY[$1]::text[])
+                      WHERE email = ANY($1)
                       RETURNING *;`;
   const queryParams = [email_arr, `${record_id}`];
   return db
@@ -158,12 +159,12 @@ const addSessionFlexibleDB = (email_arr, record_id) => {
 };
 
 //insert initial record
-const updateRecordDB = (game_id) => {
+const updateRecordDB = (record_id) => {
   const queryString = `UPDATE records
                       SET end_time = CURRENT_TIMESTAMP
-                      WHERE game_id = $1
+                      WHERE id = $1
                       RETURNING *;`;
-  const queryParams = [`${game_id}`];
+  const queryParams = [`${record_id}`];
   return db
     .query({
       text: queryString,
@@ -181,7 +182,7 @@ const updateSessionDB = (user_id, record_id) => {
                       SET win = true
                       WHERE user_id = $1 and record_id = $2
                       RETURNING *;`;
-  const queryParams = [`${user_id}`, `${record_id}`, `${win}`];
+  const queryParams = [`${user_id}`, `${record_id}`];
   return db
     .query({
       text: queryString,
@@ -190,9 +191,7 @@ const updateSessionDB = (user_id, record_id) => {
     })
     .then((res) => {
       return res.rows[0];
-      ß;
     });
-  ß;
 };
 
 const updateSessionFlexibleDB = (user_id, record_id) => {
