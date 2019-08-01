@@ -102,6 +102,22 @@ io.use(
   })
 );
 
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
+
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
 io.on('connection', (socket) => {
   console.log('user email cookie:', socket.handshake.session.email);
   console.log('USER INFORMATION: ', socket.handshake.headers);
@@ -243,13 +259,15 @@ io.on('connection', (socket) => {
         ]);
     } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
+
+      // window[roomGameId.gameId](null);
+      
+
     }
   });
+
+
+  socketForKingsCup(io, socket);
+
+
 });
-
-
-// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
-
-const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
-
-socketForKingsCup();
