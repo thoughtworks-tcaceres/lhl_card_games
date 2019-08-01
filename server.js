@@ -111,6 +111,9 @@ io.use(
 
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
 
+const kingsCupData = {};
+const userCurrentRoom = {};
+
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
@@ -140,10 +143,19 @@ io.on('connection', (socket) => {
   //   .catch((err) => console.log(err));
 
   let currentRoom;
+  
+  //00000000000000000000000000000000000
+  userCurrentRoom[socket.id] = null;
+  //000000000000000000000000000
 
   // Handle the event when the user is disconnected
 
   socket.on('disconnect', () => {
+
+    //0000000000000000000000000000
+    delete userCurrentRoom[socket.id];
+    //0000000000000000000000000000000
+
     if (!currentRoom) {
       return;
     }
@@ -228,6 +240,11 @@ io.on('connection', (socket) => {
     // Join the room
 
     currentRoom = uniqueRoomName;
+
+    ///000000000000000000000000000000000000000
+    userCurrentRoom[socket.id] = currentRoom;
+    //0000000000000000000000000000000000000
+
     socket.join(uniqueRoomName);
     const clients = io.sockets.adapter.rooms[uniqueRoomName].sockets;
     io.sockets
@@ -260,14 +277,34 @@ io.on('connection', (socket) => {
     } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
 
-      // window[roomGameId.gameId](null);
+      // ADD MY STUFFS HERE
+
+      if (roomGameId.gameId === 'whosbigger') {
+        console.log('We are joining this: ', roomGameId.gameId);
+      } else if (roomGameId.gameId === 'kingsCup') {
+        //////////
+        console.log('We are joining this: ', roomGameId.gameId)
+        io.sockets.to(currentRoom).emit('kingsCupSetUp', [
+          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers
+        ]);
+        kingsCupData[currentRoom] = {};
+        for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
+          kingsCupData[currentRoom][id] = false;
+        }
+        console.log('status here', kingsCupData)
+        ////////////////////
+      } else if (roomGameId.gameId === 'blackjack') {
+        console.log('We are joining this: ', roomGameId.gameId)
+      } else if (roomGameId.gameId === 'goofy') {
+        console.log('We are joining this: ', roomGameId.gameId)
+      }
       
 
     }
   });
 
 
-  socketForKingsCup(io, socket);
+  socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
 
 
 });
