@@ -246,3 +246,10 @@ io.on('connection', (socket) => {
     }
   });
 });
+
+
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
+
+socketForKingsCup();
