@@ -2,7 +2,8 @@ const Deck = require('./Deck')
 const Player = require('./Player')
 
 class WhosBigger{
-    constructor(sockets){
+    constructor(sockets, gameRoomName){
+        this.roomName = gameRoomName;
         this.playerPool = {};
         this.playerQueue = [];
     
@@ -13,7 +14,9 @@ class WhosBigger{
         this.deck = new Deck();
         this.deck.newDeck();
         this.deck.shuffle();
+
         this.bestPlayer = null;
+        
         console.log(this.playerQueue)
     }
     setupPlayers(sockets){

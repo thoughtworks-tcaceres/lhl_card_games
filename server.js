@@ -213,9 +213,12 @@ io.on('connection', (socket) => {
       }
     }
 
+  
+
     // Join the room
 
     currentRoom = uniqueRoomName;
+
     socket.join(uniqueRoomName);
     const clients = io.sockets.adapter.rooms[uniqueRoomName].sockets;
     io.sockets
@@ -263,8 +266,13 @@ io.on('connection', (socket) => {
 //JJ's POOP++++++++++++++++++++++++++++++==============
 //io.sockets.adapter.rooms[joinedRoom].sockets --- returns an object 
 io.on('connection', (socket) => {
-  
 
+    socket.join("room1") 
+    console.log("LOOK OVER HERE1",io.sockets.adapter.rooms['room1'].sockets)
+    console.log(socket.id)  
+
+  
+ 
 
 
 })
