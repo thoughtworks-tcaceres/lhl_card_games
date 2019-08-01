@@ -1,8 +1,12 @@
 // load .env data into process.env
 require('dotenv').config();
+//JJ stuff==========JJ stuff===============
+const Game = require('./Games/WhosBigger');
+const Deck = require('./Games/Deck')
+//JJ stuff ===========JJstuff ==============
 
 // Web server config
-const PORT = process.env.PORT || 1000;
+const PORT = process.env.PORT || 8080;
 const ENV = process.env.ENV || 'development';
 const express = require('express');
 const sass = require('node-sass-middleware');
@@ -213,9 +217,12 @@ io.on('connection', (socket) => {
       }
     }
 
+  
+
     // Join the room
 
     currentRoom = uniqueRoomName;
+
     socket.join(uniqueRoomName);
     const clients = io.sockets.adapter.rooms[uniqueRoomName].sockets;
     io.sockets
@@ -245,10 +252,34 @@ io.on('connection', (socket) => {
           socket.id,
           game_data[roomGameId.gameId].min_players
         ]);
-    } else if (
-      Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
-    ) {
-      io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom});
+    } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
+      io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
     }
   });
+
+
+
+
+// MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
+
+socketForKingsCup();
+
+
+
 });
+//JJ's POOP++++++++++++++++++++++++++++++==============
+//io.sockets.adapter.rooms[joinedRoom].sockets --- returns an object 
+io.on('connection', (socket) => {
+
+    socket.join("room1") 
+    console.log("LOOK OVER HERE1",io.sockets.adapter.rooms['room1'].sockets)
+    console.log(socket.id)  
+
+  
+ 
+
+
+})
+

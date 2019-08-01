@@ -1,7 +1,5 @@
 // let socket = io.connect('https://lhl-card-games.herokuapp.com/');
-let socket = io.connect('http://localhost:1000/');
-
-console.log('hello world');
+let socket = io.connect('http://localhost:8080/');
 
 // Handle socket response
 
@@ -11,7 +9,10 @@ socket.on('directToGame', (data) => {
   // console.log(data)
   // window.location.href = `/enterGame/${data.uniqueRoomName}`;
   $('#lobby').slideUp(100);
-  $('#showGame').toggle(1000);
+
+  console.log('MAKI CHAN')
+  console.log(`#gameFor${data.uniqueRoomName}`)
+  $(`#gameFor${data.gameId}`).toggle(1000);
 });
 
 // --------------------------
