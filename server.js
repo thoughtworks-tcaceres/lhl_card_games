@@ -326,7 +326,7 @@ io.on('connection', (socket) => {
           'kc player 1 on init',
           kingsCup2Data[currentRoom].game.getPlayers()
         );
-        io.to(currentRoom).emit('init game', kingsCup2Data[currentRoom].game.getPlayers());
+        io.to(currentRoom).emit('init game', {playerArr: kingsCup2Data[currentRoom].game.getPlayers(), idToEmail: socketIdToEmail});
       }
     }
   });
