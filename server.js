@@ -6,7 +6,7 @@ const Game = require('./Games/KingsCup');
 //JJ stuff ===========JJstuff ==============
 
 // Web server config
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 1000;
 const ENV = process.env.ENV || 'development';
 const express = require('express');
 const sass = require('node-sass-middleware');
@@ -114,7 +114,7 @@ io.use(
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
-const { kingsCup2 } = require('./public/scripts/kingsCup2/server');
+const {kingsCup2} = require('./public/scripts/kingsCup2/server');
 
 const socketIdToEmail = {};
 
@@ -134,56 +134,6 @@ io.on('connection', (socket) => {
   if (socket.handshake.session.email) {
     socketIdToEmail[socket.id] = socket.handshake.session.email;
   }
-  // console.log('user email cookie:', socket.handshake.session.email);
-  // // console.log('USER INFORMATION: ', socket.handshake.headers);
-
-  // //on game start up - add record and session
-  // addRecordDB(3) //(game_id)
-  //   .then(
-  //     (data) =>
-  //       addSessionFlexibleDB(
-  //         ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
-  //         data.id
-  //       )
-  //     /*
-  //     get list of userNames in the room, create a record in the sessions
-  //     database for each user
-  //     */
-  //   ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
-  //   .catch((err) => console.log(err));
-
-  // //on game completion - update record and session
-  // updateRecordDB(50) //(record_id)
-  //   .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
-  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
-  //   .catch((err) => console.log(err));
-
-  // if (socket.handshake.session.email) {
-  //   socketIdToEmail[socket.id] = socket.handshake.session.email;
-  // }
-  // console.log(socketIdToEmail);
-
-  // //on game start up - add record and session
-  // addRecordDB(3) //(game_id)
-  //   .then(
-  //     (data) =>
-  //       addSessionFlexibleDB(
-  //         ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
-  //         data.id
-  //       )
-  //     /*
-  //     get list of userNames in the room, create a record in the sessions
-  //     database for each user
-  //     */
-  //   ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
-  //   .catch((err) => console.log(err));
-
-  // //on game completion - update record and session
-  // updateRecordDB(50) //(record_id)
-  //   .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
-  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
-  //   .catch((err) => console.log(err));
-
 
   let currentRoom;
 
@@ -246,7 +196,6 @@ io.on('connection', (socket) => {
   // Join a room
 
   socket.on('joinARoom', (data) => {
-
     // Check to see if user is trying to join the room he/she has already joined
 
     const uniqueRoomName = `${data.gameId}-${data.roomId}`;
@@ -324,6 +273,7 @@ io.on('connection', (socket) => {
   socket.on('handleJoinGameEvent', (data) => {
     const clients = io.sockets.adapter.rooms[currentRoom].sockets;
     const roomGameId = getRoomGameId(currentRoom);
+    console.log('SUPER IMPORTANT INFORMATION:', roomGameId.gameId);
     game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.push(socket.id);
     if (Object.keys(clients).length > game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
       io.sockets
@@ -341,6 +291,7 @@ io.on('connection', (socket) => {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
 
       // Setup for the start of the game
+      //on game start up - add record and session
 
       if (roomGameId.gameId === 'whosbigger') {
         console.log('We are joining this: ', roomGameId.gameId);
@@ -372,14 +323,20 @@ io.on('connection', (socket) => {
           'kc player 1 on init',
           kingsCup2Data[currentRoom].game.getPlayers()
         );
-        io.to(currentRoom).emit('init game', {playerArr: kingsCup2Data[currentRoom].game.getPlayers(), idToEmail: socketIdToEmail});
+        io.to(currentRoom).emit('init game', {
+          playerArr: kingsCup2Data[currentRoom].game.getPlayers(),
+          idToEmail: socketIdToEmail
+        });
       }
-      let DB_game_id = roomGameId.gameId === `kingsCup` ? 1 : 2;
-     let DB_players_arr = game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.map((player) => {
-       return socketIdToEmail[player];
-     });
-      /**** include initial push to DB here */
+
+
+      //**** include initial push to DB here */
       //************************************** */
+      let DB_game_id = roomGameId.gameId === 'kingsCup' ? 1 : 2;
+      let DB_players_arr = game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.map((player) => {
+        return socketIdToEmail[player];
+      });
+      
       addRecordDB(DB_game_id) //(game_id)
         .then((new_record) => {
           // not adding in for game id 1 because of data structure issues

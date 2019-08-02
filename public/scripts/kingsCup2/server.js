@@ -16,6 +16,9 @@ const kingsCup2 = function(io, socket, kingsCup2Data, userCurrentRoom) {
     const myRoom = userCurrentRoom[socket.id];
     const game = kingsCup2Data[myRoom].game;
 
+    game.startGame();
+
+    //else
     console.log('first branch about to happen');
     io.to(myRoom).emit('kcdrawcard', `${game.dealCard(socket.id)}`);
     console.log('event 2 about to happen');
