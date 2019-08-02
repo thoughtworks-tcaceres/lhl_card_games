@@ -38,7 +38,7 @@ $(document).ready(function() {
 
 socket.on('kcdrawcard', (data) => {
   console.log('response recieved');
-  $('.card-shown').html(`<img class="img-fluid my-0 mx-auto" src="/PNG/${data}.png"/>`);
+  $('.card-shown').html(`<img class="img-fluid my-0 mx-auto bounce-in-top" src="/PNG/${data}.png"/>`);
   console.log("LOOK HERE",data.substr(0,2));
   console.log("LOOK HERE")
   $('#description').html(`${gameRules[data.substr(0,2)]}`)
