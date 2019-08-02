@@ -131,7 +131,9 @@ const userCurrentRoom = {};
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 io.on('connection', (socket) => {
-
+  if (socket.handshake.session.email) {
+    socketIdToEmail[socket.id] = socket.handshake.session.email;
+  }
   // console.log('user email cookie:', socket.handshake.session.email);
   // // console.log('USER INFORMATION: ', socket.handshake.headers);
 
@@ -372,8 +374,25 @@ io.on('connection', (socket) => {
         );
         io.to(currentRoom).emit('init game', {playerArr: kingsCup2Data[currentRoom].game.getPlayers(), idToEmail: socketIdToEmail});
       }
+      let DB_game_id = roomGameId.gameId === `kingsCup` ? 1 : 2;
+     let DB_players_arr = game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.map((player) => {
+       return socketIdToEmail[player];
+     });
+      /**** include initial push to DB here */
+      //************************************** */
+      addRecordDB(DB_game_id) //(game_id)
+        .then((new_record) => {
+          // not adding in for game id 1 because of data structure issues
+          if (DB_game_id === 2) {
+            kingsCup2Data[currentRoom].record = new_record.id;
+          }
+          return addSessionFlexibleDB(DB_players_arr, new_record.id);
+        })
+        .catch((err) => console.log(err));
     }
   });
+    
+  
 
   socket.on('checkPasscode', (data) => {
     if (game_data[data.gameId].room_data[data.roomId].passcode) {
