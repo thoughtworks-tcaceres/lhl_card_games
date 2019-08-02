@@ -1,4 +1,7 @@
-//const Game = require('../../../Games/KingsCup.js')
+//updateSessionFlexibleDB
+//updateRecordDB(50)
+
+const {updateSessionFlexibleDB,updateRecordDB} = require("../../../bin/helpers/dbHelpers")
 
 const kingsCup2 = function(io, socket, kingsCup2Data, userCurrentRoom) {
   socket.on('whatever', (data) => {
@@ -16,9 +19,10 @@ const kingsCup2 = function(io, socket, kingsCup2Data, userCurrentRoom) {
     const myRoom = userCurrentRoom[socket.id];
     const game = kingsCup2Data[myRoom].game;
 
+    if(game.getDeck().getLength()> 0){
+
     game.startGame();
 
-    //else
     console.log('first branch about to happen');
     io.to(myRoom).emit('kcdrawcard', `${game.dealCard(socket.id)}`);
     console.log('event 2 about to happen');
@@ -26,7 +30,18 @@ const kingsCup2 = function(io, socket, kingsCup2Data, userCurrentRoom) {
     console.log('event 3 about to happen');
     io.to(game.playerPool[game.playerTurnNumber]).emit('kcdealbutton');
     console.log('event 4 about to happen');
+    }else{
+      io.to(myRoom).emit('initEndGame');
+      kingsCup2Data[myRoom].record;
+      //get record id from game object
+      //get socket id's from sockets object
+      //endgame redirect to game rooms
+    }
+    
   });
 };
+
+
+
 
 module.exports = {kingsCup2};
