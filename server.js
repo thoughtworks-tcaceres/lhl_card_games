@@ -116,7 +116,7 @@ io.use(
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
 const {kingsCup2} = require('./public/scripts/kingsCup2/server');
 
-// const userLinkSocketIdToDB = {};
+const socketIdToEmail = {};
 
 const kingsCupData = {};
 const kingsCup2Data = {};
@@ -131,8 +131,10 @@ const userCurrentRoom = {};
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 io.on('connection', (socket) => {
-  console.log('user email cookie:', socket.handshake.session.email);
-  // console.log('USER INFORMATION: ', socket.handshake.headers);
+  if (socket.handshake.session.email) {
+    socketIdToEmail[socket.id] = socket.handshake.session.email;
+  }
+  console.log(socketIdToEmail);
 
   //on game start up - add record and session
   addRecordDB(3) //(game_id)
@@ -160,10 +162,6 @@ io.on('connection', (socket) => {
   //00000000000000000000000000000000000
   userCurrentRoom[socket.id] = null;
 
-  // userLinkSocketIdToDB[socket.id] = {
-  //   name: ,
-  //   email:
-  // }
   //000000000000000000000000000
 
   // Handle the event when the user is disconnected

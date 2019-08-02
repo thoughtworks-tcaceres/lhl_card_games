@@ -18,7 +18,7 @@ let game_data = {
     }
   },
   kingsCup: {
-    max_players: 8,
+    max_players: 10,
     min_players: 2,
     room_data: {
       woofpecker: {
@@ -37,10 +37,10 @@ let game_data = {
     min_players: 2,
     room_data: {}
   },
-  kingsCup2:{
-    max_players:10,
-    min_players:2,
-    room_data:{
+  kingsCup2: {
+    max_players: 10,
+    min_players: 2,
+    room_data: {
       woodpecker: {
         passcode: null,
         joinedPlayers: []
