@@ -6,7 +6,7 @@ const Game = require('./Games/KingsCup');
 //JJ stuff ===========JJstuff ==============
 
 // Web server config
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 1000;
 const ENV = process.env.ENV || 'development';
 const express = require('express');
 const sass = require('node-sass-middleware');
@@ -114,10 +114,10 @@ io.use(
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
-const { kingsCup2 } = require('./public/scripts/kingsCup2/server')
+const {kingsCup2} = require('./public/scripts/kingsCup2/server');
 
 const kingsCupData = {};
-const kingsCup2Data = {}
+const kingsCup2Data = {};
 
 const userCurrentRoom = {};
 
@@ -149,12 +149,12 @@ io.on('connection', (socket) => {
 
   //on game completion - update record and session
   updateRecordDB(50) //(record_id)
-    .then((data) => updateSessionFlexibleDB('t@gmail.com', data.id))
+    .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
     //array of object that updates each rank for a single --> same thing as regularupdate session?
     .catch((err) => console.log(err));
 
   let currentRoom;
-  
+
   //00000000000000000000000000000000000
   userCurrentRoom[socket.id] = null;
   //000000000000000000000000000
@@ -162,7 +162,6 @@ io.on('connection', (socket) => {
   // Handle the event when the user is disconnected
 
   socket.on('disconnect', () => {
-
     //0000000000000000000000000000
     delete userCurrentRoom[socket.id];
     //0000000000000000000000000000000
@@ -248,12 +247,9 @@ io.on('connection', (socket) => {
       }
     }
 
-  
-
     // Join the room
 
     currentRoom = uniqueRoomName;
-
 
     ///000000000000000000000000000000000000000
     userCurrentRoom[socket.id] = currentRoom;
@@ -288,7 +284,9 @@ io.on('connection', (socket) => {
           socket.id,
           game_data[roomGameId.gameId].min_players
         ]);
-    } else if (Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length) {
+    } else if (
+      Object.keys(clients).length === game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.length
+    ) {
       io.sockets.to(currentRoom).emit('directToGame', {uniqueRoomName: currentRoom, gameId: roomGameId.gameId});
 
       // Setup for the start of the game
@@ -296,52 +294,44 @@ io.on('connection', (socket) => {
       if (roomGameId.gameId === 'whosbigger') {
         console.log('We are joining this: ', roomGameId.gameId);
       } else if (roomGameId.gameId === 'kingsCup') {
-        console.log('We are joining this: ', roomGameId.gameId)
-        io.sockets.to(currentRoom).emit('kingsCupSetUp', [
-          game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers
-        ]);
+        console.log('We are joining this: ', roomGameId.gameId);
+        io.sockets
+          .to(currentRoom)
+          .emit('kingsCupSetUp', [game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers]);
         kingsCupData[currentRoom] = {};
         for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
           kingsCupData[currentRoom][id] = false;
         }
-        console.log('status here', kingsCupData)
+        console.log('status here', kingsCupData);
       } else if (roomGameId.gameId === 'blackjack') {
-        console.log('We are joining this: ', roomGameId.gameId)
+        console.log('We are joining this: ', roomGameId.gameId);
       } else if (roomGameId.gameId === 'goofy') {
-        console.log('We are joining this: ', roomGameId.gameId)
+        console.log('We are joining this: ', roomGameId.gameId);
       } else if (roomGameId.gameId === 'kingsCup2') {
-
-
-        
-        console.log('We are joining this: ', roomGameId.gameId)
+        console.log('We are joining this: ', roomGameId.gameId);
 
         kingsCup2Data[currentRoom] = {};
-        kingsCup2Data[currentRoom].players = {}
+        kingsCup2Data[currentRoom].players = {};
         for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
-          
-          kingsCup2Data[currentRoom].players[id] =  {};
-          
+          kingsCup2Data[currentRoom].players[id] = {};
         }
-        console.log(kingsCup2[currentRoom])
-        kingsCup2Data[currentRoom].game = new Game(Object.keys(kingsCup2Data[currentRoom].players), currentRoom)
-        io.to(kingsCup2Data[currentRoom].game.getPlayers()[0]).emit("initgame")
+        console.log(kingsCup2[currentRoom]);
+        kingsCup2Data[currentRoom].game = new Game(Object.keys(kingsCup2Data[currentRoom].players), currentRoom);
+        io.to(kingsCup2Data[currentRoom].game.getPlayers()[0]).emit(
+          'kc player 1 on init',
+          kingsCup2Data[currentRoom].game.getPlayers()
+        );
+        io.to(currentRoom).emit('init game', kingsCup2Data[currentRoom].game.getPlayers());
         //console.log("look here!!! ================", Object.keys(kingsCup2Data[currentRoom].players));
 
         // console.log(kingsCup2Data)
         // console.log(userCurrentRoom)
         // console.log(currentRoom)
-
-       
       }
-      
-
     }
   });
   //socketForKingsCup(io, socket);
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
 
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
-
-
 });
-
