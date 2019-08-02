@@ -4,11 +4,11 @@ const kingsCup2 = function(io, sockets, kingsCup2Data, userCurrentRoom){
 
 
   // IMPORTANT
-  const myRoom = userCurrentRoom[socket.id];
+  // const myRoom = userCurrentRoom[socket.id];
 
   ////
 
-  const dataForThisUser = kingsCup2Data[myRoom][socket.id]
+  // const dataForThisUser = kingsCup2Data[myRoom][socket.id]
 
 
   sockets.join('woodpecker');

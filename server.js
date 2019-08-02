@@ -317,14 +317,16 @@ io.on('connection', (socket) => {
         io.sockets.to(currentRoom).emit('kingsCup2Attendance', [
           kingsCup2Data[currentRoom]
         ]);
-      }
-      
-
-    }
+      };
+    };
   });
 
+  // Check to see if the passcode is required for joining a room
 
-  socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
+  
+
+
+  socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
 
 });
