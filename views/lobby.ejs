@@ -58,5 +58,18 @@
 
 </div>
 
+<div id="passcodeForRoom" style="background-color: lightblue; display: none;">
+  <br/>
+  <p>Passcode is required for this room</p>
+  <form id="passcodeForm" method="POST" action="/games/insertPasscode">
+    <input name="insertedPasscode" placeholder="Enter passcode here" />
+    <button type="submit">Enter</button>
+    <button id="passcodeCancel">Cancel</button>
+  </form>
+  <br />
+</div>
+
+<div id="wrongPasscodeEntered" style="display: none; border: red, solid; color: red; background-color: white;">Wrong passcode!</div>
+
   <% include ./mainPage %>
   <% include ./partials/footer %>
