@@ -1,4 +1,2 @@
-INSERT INTO games (name,description,maximum_users,minimum_users) VALUES ('g1','g1desc',1,2);
-INSERT INTO games (name,description,maximum_users,minimum_users) VALUES ('g2','g2desc',1,3);
-INSERT INTO games (name,description,maximum_users,minimum_users) VALUES ('g3','g3desc',2,4);
-
+INSERT INTO games (name,description,maximum_users,minimum_users) VALUES ('Rock-Paper-Scissors',`Rock–paper–scissors is a hand game usually played between two people, in which each player simultaneously forms one of three shapes with an outstretched hand. These shapes are "rock", "paper", and "scissors".`,2,10);
+INSERT INTO games (name,description,maximum_users,minimum_users) VALUES ('Kings Cup',`Kings cup is a drinking game that uses playing cards. The player must drink and dispense drinks based on cards drawn. Each card has a rule that is predetermined before the game starts.`,2,10);
