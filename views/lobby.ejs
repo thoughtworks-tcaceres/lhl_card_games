@@ -3,10 +3,10 @@
 <div id="lobby">
 
 <!-- DIFFERENCE -->
-  <div style= "border: solid">
+  <div id = "gametabs">
 
     <% for (let game in game_data) { %>
-      <button  class="game" data-gamename="<%= game %>" ><%= game %></button>
+      <button  class="game btn btn-secondary" data-gamename="<%= game %>" ><%= game %></button>
     <% } %>
   </div>
   <br>
@@ -15,7 +15,7 @@
 
   <div>
     <% for (let game in game_data) { %>
-      <div class="roomList" id=<%=game%> style="background-color: green; display: none;">
+      <div class="roomList" id=<%=game%>>
         <!--  -->
         <br/>
 
@@ -46,7 +46,7 @@
   <!-- --------------------------------------------------------------------- -->
 
   <br>
-  <div id="logs" style="border: solid; background-color: yellow">
+  <div id="logs" >
     <br/>
 
     <br/>

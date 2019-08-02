@@ -1,66 +1,13 @@
 body {
-  // background-image: url("https://static1.squarespace.com/static/589135c903596e466b814f4c/5892abbd9f745653f788e793/5b60e92e88251b04b67f7cb5/1533077816996/poker_tournament_landscape_tv_full_hd.jpg?format=2500w");
-  background-image: url("https://static.tildacdn.com/tild6164-3963-4664-b263-333163336432/site_header_1.jpg");
-  // background-image: url("https://cdn.hipwallpaper.com/i/87/15/XYypqS.jpg");
-  // background-image: url("https://images7.alphacoders.com/301/thumb-1920-301522.jpg");
+ 
+  background-size: cover;
+  
+  background-color: darkgrey;
+
 }
-.game {
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  text-shadow: 1px 1px pink, -1px -1px maroon;
-  line-height: 3.5em;
-  text-align: center;
-  display: inline-block;
-  width: 10.5em;
-  -webkit-border-radius: 0.75em;
-  -moz-border-radius: 0.75em;
-  -o-border-radius: 0.75em;
-  border-radius: 0.75em;
-  background-color: red;
-  -webkit-box-shadow: 0 0.2em maroon;
-  -moz-box-shadow: 0 0.2em maroon;
-  -o-box-shadow: 0 0.2em maroon;
-  box-shadow: 0 0.2em maroon;
-  color: rgba(0, 0, 0, 0.616);
-  font-weight: bold;
-  font-size: x-small;
-  margin: 5px;
-  background-color: red;
-  background-image: -o-linear-gradient(left top, pink 3%, red 22%, maroon 99%);
-  background-image: -moz-linear-gradient(
-    left top,
-    pink 3%,
-    red 22%,
-    maroon 99%
-  );
-  background-image: -webkit-linear-gradient(
-    left top,
-    pink 3%,
-    red 22%,
-    maroon 99%
-  );
-  background-image: linear-gradient(left top, pink 3%, red 22%, maroon 99%);
-  cursor: pointer;
-  padding-left: 5px;
-}
+
 .room {
-  font-family: Arial, Helvetica, sans-serif;
-  text-align: center;
-  display: inline-block;
-  line-height: 2.5em;
-  width: 8.5em;
-  margin: 5px;
-  font-weight: inherit;
-  font-size: small;
-  padding: 10px 10px 10px 10px;
-  background-color: lightgray;
-  text-shadow: -1px -1px black, 1px 1px white;
-  color: rgb(0, 0, 0);
-  -webkit-border-radius: 7px;
-  -moz-border-radius: 7px;
-  -o-border-radius: 7px;
-  border-radius: 7px;
-  box-shadow: 0 0.2em gray;
-  cursor: pointer;
+  
 }
 // .game:active,
 // .room :active {
@@ -130,7 +77,13 @@ body {
 .my-0{
   max-width: 30%;
   height: auto;
+  
 }
+.emailDisplay{
+ font-size : 1em;
+}
+
+
 
 
 

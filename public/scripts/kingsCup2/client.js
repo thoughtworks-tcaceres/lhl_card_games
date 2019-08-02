@@ -38,7 +38,7 @@ $(document).ready(function() {
 
 socket.on('kcdrawcard', (data) => {
   console.log('response recieved');
-  $('.card-shown').html(`<img class="img-fluid my-0 mx-auto" src="/PNG/${data}.png"/>`);
+  $('.card-shown').html(`<img class="img-fluid my-0 mx-auto bounce-in-top" src="/PNG/${data}.png"/>`);
   console.log("LOOK HERE",data.substr(0,2));
   console.log("LOOK HERE")
   $('#description').html(`${gameRules[data.substr(0,2)]}`)
@@ -78,13 +78,13 @@ socket.on('kc player 1 on init', (numPlayers) => {
   });
 });
 
-socket.on('init game', (numPlayers) => {
-  console.log(numPlayers);
+socket.on('init game', (data) => {
+  console.log(data.playerArr.length);
   let newHtml = ``;
-  for (let i = 0; i < numPlayers.length; i++) {
+  for (let i = 0; i < data.playerArr.length; i++) {
     newHtml += `<div class="col">
     <div class="card">
-      <h2 class="my-0 mx-auto">p${i + 1}</h2>
+      <h2 class="my-0 emailDisplay mx-auto">${data.idToEmail[data.playerArr[i]]}</h2>
       
     </div>
   </div>`;
