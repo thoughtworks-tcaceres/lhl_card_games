@@ -1,13 +1,13 @@
 // let socket = io.connect('https://lhl-card-games.herokuapp.com/');
-let socket = io.connect('http://localhost:1000/');
+let socket = io.connect('http://localhost:8080/');
+
+let gameRoomIdUserIsTryingToJoinWithPasscode;
 
 // Handle socket response
 
 // --------------------------
 
 socket.on('directToGame', (data) => {
-  // console.log(data)
-  // window.location.href = `/enterGame/${data.uniqueRoomName}`;
   $('#lobby').slideUp(100);
   console.log('MAKI CHAN');
   console.log(`#gameFor${data.uniqueRoomName}`);
@@ -40,18 +40,38 @@ socket.on('updateRoomStatus', (data) => {
   }
 });
 
+socket.on('askForPasscode', (data) => {
+  if (data[1]) {
+    gameRoomIdUserIsTryingToJoinWithPasscode = data[0];
+    $('#lobby').hide();
+    $('#passcodeForRoom').toggle(500);
+  } else {
+    socket.emit('joinARoom', data[0]);
+  }
+});
+
+socket.on('joinAfterPasscode', (data) => {
+  $('#passcodeForRoom').hide();
+  $('#lobby').toggle();
+  if (data[1]) {
+    socket.emit('joinARoom', data[0]);
+  } else {
+    $('#wrongPasscodeEntered').toggle(500, function() {
+      $('#wrongPasscodeEntered').hide(2000);
+    })
+  }
+});
+
 // --------------------------
 // --------------------------
 // --------------------------
 
-socket.on('moveUsers', (data) => {
-  alert('MOVE!');
-});
+
 
 socket.on('createNewRoom', (data) => {
   const newBtn = document.createElement('button');
   newBtn.addEventListener('click', () => {
-    socket.emit('joinARoom', data);
+    socket.emit('checkPasscode', data);
   });
   newBtn.innerHTML = data.roomId;
   newBtn.setAttribute('class', 'room');
@@ -66,9 +86,18 @@ $(document).ready(function() {
   showRoomsForGame();
   // userRedirection();
   loadJoinGameBtn();
+  passcodeInputHandler();
+  handleCancelPasscode();
 });
 
 // To be loaded on jquery when DOM is ready
+
+const handleCancelPasscode = function() {
+  $('#passcodeCancel').on('click', function() {
+    $('#passcodeForRoom').hide();
+    $('#lobby').toggle(500);
+  });
+};
 
 const loadJoinGameBtn = function() {
   $('#joinGameBtn').on('click', function() {
@@ -85,9 +114,31 @@ const roomJoiner = function() {
     // return;
     //////////////////////
 
-    socket.emit('joinARoom', {
+    socket.emit('checkPasscode', {
       roomId: $(this).attr('data-roomid'),
       gameId: $(this).attr('data-gameid')
+    });
+  });
+};
+
+const passcodeInputHandler = function() {
+  $('#passcodeForm').on('submit', function(event) {
+    event.preventDefault();
+    $.ajax('/games/insertPasscode', {
+      type: 'POST',
+      data: $(this).serialize(),
+      dataType: 'text'
+    }).done(function(data) {
+      // console.log('successful passcode Insert!', data)
+
+      socket.emit('validatePasscode', [
+        gameRoomIdUserIsTryingToJoinWithPasscode,
+        data
+      ]);
+      // console.log(gameRoomIdUserIsTryingToJoinWithPasscode);
+
+    }).fail(function(error) {
+      console.log('Error at passcode submission: ', error);
     });
   });
 };
@@ -96,7 +147,6 @@ const dynamicRoom = function() {
   $('.roomCreator').on('submit', function(event) {
     event.preventDefault();
     const gameId = $(this).attr('data-gamename');
-    console.log('here');
     $.ajax('/games/createRoom', {
       type: 'POST',
       data: $(this).serialize(),

@@ -28,4 +28,8 @@ router.post('/createRoom', function(req, res) {
   }
 });
 
+router.post('/insertPasscode', function(req, res) {
+  res.send(nameRefine(req.body.insertedPasscode));
+});
+
 module.exports = router;

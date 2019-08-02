@@ -6,7 +6,7 @@ const Game = require('./Games/KingsCup');
 //JJ stuff ===========JJstuff ==============
 
 // Web server config
-const PORT = process.env.PORT || 1000;
+const PORT = process.env.PORT || 8080;
 const ENV = process.env.ENV || 'development';
 const express = require('express');
 const sass = require('node-sass-middleware');
@@ -114,7 +114,7 @@ io.use(
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
-const {kingsCup2} = require('./public/scripts/kingsCup2/server');
+const { kingsCup2 } = require('./public/scripts/kingsCup2/server');
 
 // const userLinkSocketIdToDB = {};
 
@@ -131,29 +131,29 @@ const userCurrentRoom = {};
 // MY NEW STUFFS HEREEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 io.on('connection', (socket) => {
-  console.log('user email cookie:', socket.handshake.session.email);
-  // console.log('USER INFORMATION: ', socket.handshake.headers);
+  // console.log('user email cookie:', socket.handshake.session.email);
+  // // console.log('USER INFORMATION: ', socket.handshake.headers);
 
-  //on game start up - add record and session
-  addRecordDB(3) //(game_id)
-    .then(
-      (data) =>
-        addSessionFlexibleDB(
-          ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
-          data.id
-        )
-      /*
-      get list of userNames in the room, create a record in the sessions
-      database for each user
-      */
-    ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
-    .catch((err) => console.log(err));
+  // //on game start up - add record and session
+  // addRecordDB(3) //(game_id)
+  //   .then(
+  //     (data) =>
+  //       addSessionFlexibleDB(
+  //         ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
+  //         data.id
+  //       )
+  //     /*
+  //     get list of userNames in the room, create a record in the sessions
+  //     database for each user
+  //     */
+  //   ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
+  //   .catch((err) => console.log(err));
 
-  //on game completion - update record and session
-  updateRecordDB(50) //(record_id)
-    .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
-    //array of object that updates each rank for a single --> same thing as regularupdate session?
-    .catch((err) => console.log(err));
+  // //on game completion - update record and session
+  // updateRecordDB(50) //(record_id)
+  //   .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
+  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
+  //   .catch((err) => console.log(err));
 
   let currentRoom;
 
@@ -333,7 +333,21 @@ io.on('connection', (socket) => {
     }
   });
 
-  io.sockets.to(currentRoom).emit('kingsCup2Attendance', [kingsCup2Data[currentRoom]]);
+  socket.on('checkPasscode', (data) => {
+    if (game_data[data.gameId].room_data[data.roomId].passcode) {
+      socket.emit('askForPasscode', [data, true]);
+    } else {
+      socket.emit('askForPasscode', [data, false]);
+    }
+  });
+
+  socket.on('validatePasscode', (data) => {
+    if (data[1] === game_data[data[0].gameId].room_data[data[0].roomId].passcode) {
+      socket.emit('joinAfterPasscode', [data[0], true]);
+    } else {
+      socket.emit('joinAfterPasscode', [data[0], false]);
+    }
+  });
 
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
