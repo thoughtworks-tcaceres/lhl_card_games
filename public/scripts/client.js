@@ -1,13 +1,13 @@
 // let socket = io.connect('https://lhl-card-games.herokuapp.com/');
-let socket = io.connect('http://localhost:1000/');
+let socket = io.connect('http://localhost1000/');
+
+let gameRoomIdUserIsTryingToJoinWithPasscode;
 
 // Handle socket response
 
 // --------------------------
 
 socket.on('directToGame', (data) => {
-  // console.log(data)
-  // window.location.href = `/enterGame/${data.uniqueRoomName}`;
   $('#lobby').slideUp(100);
   console.log('MAKI CHAN');
   console.log(`#gameFor${data.uniqueRoomName}`);
@@ -38,22 +38,61 @@ socket.on('updateRoomStatus', (data) => {
     }
     $('#waitingMsg').css('display', 'none');
   }
+  if (data[0].length === 1) {
+    $('#deleteRoomBtn').css('display', 'block');
+  } else {
+    $('#deleteRoomBtn').css('display', 'none');
+  }
+});
+
+socket.on('askForPasscode', (data) => {
+  if (data[1]) {
+    gameRoomIdUserIsTryingToJoinWithPasscode = data[0];
+    $('#lobby').hide();
+    $('#passcodeForRoom').toggle(500);
+  } else {
+    socket.emit('joinARoom', data[0]);
+  }
+});
+
+socket.on('joinAfterPasscode', (data) => {
+  $('#passcodeForRoom').hide();
+  $('#lobby').toggle();
+  if (data[1]) {
+    socket.emit('joinARoom', data[0]);
+  } else {
+    $('#wrongPasscodeEntered').toggle(500, function() {
+      $('#wrongPasscodeEntered').hide(2000);
+    });
+  }
+});
+
+socket.on('showSomeErrorMessageInLobby', (msg) => {
+  document.getElementById('stopUserFromJoiningRoom').innerHTML = `<p>${msg}</p>`;
+  $('#stopUserFromJoiningRoom').toggle(500, function() {
+    $('#stopUserFromJoiningRoom').hide(2000);
+  });
+});
+
+socket.on('removeSpecificRoom', (data) => {
+  console.log('removing', data);
+  $(`#specificRoomBtnIdFor${data}`).remove();
+  logs.innerHTML = '<br><br>';
+  // $('#joinGameBtn').css('display', 'none');
+  $('#deleteRoomBtn').css('display', 'none');
 });
 
 // --------------------------
 // --------------------------
 // --------------------------
-
-socket.on('moveUsers', (data) => {
-  alert('MOVE!');
-});
 
 socket.on('createNewRoom', (data) => {
   const newBtn = document.createElement('button');
   newBtn.addEventListener('click', () => {
-    socket.emit('joinARoom', data);
+    socket.emit('checkPasscode', data);
   });
   newBtn.innerHTML = data.roomId;
+  newBtn.id = `specificRoomBtnIdFor${data.gameId}-${data.roomId}`;
   newBtn.setAttribute('class', 'room');
   document.getElementById('availableRoomsFor' + data.gameId).appendChild(newBtn);
 });
@@ -66,9 +105,25 @@ $(document).ready(function() {
   showRoomsForGame();
   // userRedirection();
   loadJoinGameBtn();
+  passcodeInputHandler();
+  handleCancelPasscode();
+  handleDeleteRoomBtn();
 });
 
 // To be loaded on jquery when DOM is ready
+
+const handleDeleteRoomBtn = function() {
+  $('#deleteRoomBtn').on('click', function() {
+    socket.emit('deleteSpecificRoom');
+  });
+};
+
+const handleCancelPasscode = function() {
+  $('#passcodeCancel').on('click', function() {
+    $('#passcodeForRoom').hide();
+    $('#lobby').toggle(500);
+  });
+};
 
 const loadJoinGameBtn = function() {
   $('#joinGameBtn').on('click', function() {
@@ -85,10 +140,30 @@ const roomJoiner = function() {
     // return;
     //////////////////////
 
-    socket.emit('joinARoom', {
+    socket.emit('checkPasscode', {
       roomId: $(this).attr('data-roomid'),
       gameId: $(this).attr('data-gameid')
     });
+  });
+};
+
+const passcodeInputHandler = function() {
+  $('#passcodeForm').on('submit', function(event) {
+    event.preventDefault();
+    $.ajax('/games/insertPasscode', {
+      type: 'POST',
+      data: $(this).serialize(),
+      dataType: 'text'
+    })
+      .done(function(data) {
+        // console.log('successful passcode Insert!', data)
+
+        socket.emit('validatePasscode', [gameRoomIdUserIsTryingToJoinWithPasscode, data]);
+        // console.log(gameRoomIdUserIsTryingToJoinWithPasscode);
+      })
+      .fail(function(error) {
+        console.log('Error at passcode submission: ', error);
+      });
   });
 };
 
@@ -96,7 +171,6 @@ const dynamicRoom = function() {
   $('.roomCreator').on('submit', function(event) {
     event.preventDefault();
     const gameId = $(this).attr('data-gamename');
-    console.log('here');
     $.ajax('/games/createRoom', {
       type: 'POST',
       data: $(this).serialize(),

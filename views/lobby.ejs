@@ -3,10 +3,10 @@
 <div id="lobby">
 
 <!-- DIFFERENCE -->
-  <div style= "border: solid">
+  <div id = "gametabs">
 
     <% for (let game in game_data) { %>
-      <button  class="game" data-gamename="<%= game %>" ><%= game %></button>
+      <button  class="game btn btn-secondary" data-gamename="<%= game %>" ><%= game %></button>
     <% } %>
   </div>
   <br>
@@ -15,7 +15,7 @@
 
   <div>
     <% for (let game in game_data) { %>
-      <div class="roomList" id=<%=game%> style="background-color: green; display: none;">
+      <div class="roomList" id=<%=game%>>
         <!--  -->
         <br/>
 
@@ -35,7 +35,8 @@
         <% let uniqueBtnSectionId = 'availableRoomsFor' + game; %>
         <div id=<%= uniqueBtnSectionId %>>
           <% for (let room in game_data[game].room_data) { %>
-            <button class="room" data-gameid=<%=game%> data-roomid=<%= room %> value=<%=room%>><%=room%></button>
+            <% let specificRoomBtnId = `specificRoomBtnIdFor${game}-${room}` %>
+            <button class="room" id=<%=specificRoomBtnId%> data-gameid=<%=game%> data-roomid=<%= room %> value=<%=room%>><%=room%></button>
           <% } %>
         </div>
       </div>
@@ -45,7 +46,7 @@
   <!-- --------------------------------------------------------------------- -->
 
   <br>
-  <div id="logs" style="border: solid; background-color: yellow">
+  <div id="logs" >
     <br/>
 
     <br/>
@@ -53,10 +54,25 @@
 
   <!--  -->
   <button id="joinGameBtn" style="display: none;">JOIN GAME!</button>
+  <button id="deleteRoomBtn" style="display: none; color: red;">Delete this room</button>
   <p style="display: none;" id="waitingMsg">Waiting for other players to join...</p>
   <!--  -->
 
 </div>
+
+<div id="passcodeForRoom" style="background-color: lightblue; display: none;">
+  <br/>
+  <p>Passcode is required for this room</p>
+  <form id="passcodeForm" method="POST" action="/games/insertPasscode">
+    <input name="insertedPasscode" placeholder="Enter passcode here" />
+    <button type="submit">Enter</button>
+    <button id="passcodeCancel">Cancel</button>
+  </form>
+  <br />
+</div>
+
+<div id="wrongPasscodeEntered" style="display: none; border: red, solid; color: red; background-color: white;">Wrong passcode!</div>
+<div id="stopUserFromJoiningRoom" style="display: none; border: red, solid; color: red; background-color: white;"></div>
 
   <% include ./mainPage %>
   <% include ./partials/footer %>

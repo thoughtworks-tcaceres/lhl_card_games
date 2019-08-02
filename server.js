@@ -134,14 +134,6 @@ io.on('connection', (socket) => {
   if (socket.handshake.session.email) {
     socketIdToEmail[socket.id] = socket.handshake.session.email;
   }
-  console.log(socketIdToEmail);
-
-  // //on game completion - update record and session
-  // updateRecordDB(50) //(record_id)
-  //   .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
-  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
-  //   .catch((err) => console.log(err));
-
   let currentRoom;
 
   //00000000000000000000000000000000000
@@ -190,22 +182,39 @@ io.on('connection', (socket) => {
     io.sockets.emit('createNewRoom', data);
   });
 
+  // Delete the room
+
+  socket.on('deleteSpecificRoom', () => {
+    socket.emit('removeSpecificRoom', currentRoom);
+    const roomGameId = getRoomGameId(currentRoom);
+    delete game_data[roomGameId.gameId].room_data[roomGameId.roomId];
+    currentRoom = null;
+    userCurrentRoom[socket.id] = null;
+  });
+
   // Join a room
 
   socket.on('joinARoom', (data) => {
-    // Check number of users
-
-    const numberOfExistingUsers = getNumberOfUsers(data.gameId, data.roomId, io);
-    if (numberOfExistingUsers >= game_data[data.gameId].max_players) {
-      console.log('Room is full');
-      return;
-    }
-
     // Check to see if user is trying to join the room he/she has already joined
 
     const uniqueRoomName = `${data.gameId}-${data.roomId}`;
     const joinedRooms = getJoinedRooms(game_data, io, socket.id);
     if (joinedRooms.includes(uniqueRoomName)) {
+      return;
+    }
+
+    // Check number of users
+
+    const numberOfExistingUsers = getNumberOfUsers(data.gameId, data.roomId, io);
+    if (numberOfExistingUsers >= game_data[data.gameId].max_players) {
+      socket.emit('showSomeErrorMessageInLobby', 'This room is full!');
+      return;
+    }
+
+    // Check if the game is in progress
+
+    if (game_data[data.gameId].room_data[data.roomId].joinedPlayers.length > 0) {
+      socket.emit('showSomeErrorMessageInLobby', 'The game is in progress!');
       return;
     }
 
@@ -313,7 +322,10 @@ io.on('connection', (socket) => {
           'kc player 1 on init',
           kingsCup2Data[currentRoom].game.getPlayers()
         );
-        io.to(currentRoom).emit('init game', kingsCup2Data[currentRoom].game.getPlayers());
+        io.to(currentRoom).emit('init game', {
+          playerArr: kingsCup2Data[currentRoom].game.getPlayers(),
+          idToEmail: socketIdToEmail
+        });
       }
       let DB_game_id = roomGameId.gameId === 'kingsCup' ? 1 : 2;
       let DB_players_arr = game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.map((player) => {
@@ -334,7 +346,21 @@ io.on('connection', (socket) => {
     }
   });
 
-  io.sockets.to(currentRoom).emit('kingsCup2Attendance', [kingsCup2Data[currentRoom]]);
+  socket.on('checkPasscode', (data) => {
+    if (game_data[data.gameId].room_data[data.roomId].passcode) {
+      socket.emit('askForPasscode', [data, true]);
+    } else {
+      socket.emit('askForPasscode', [data, false]);
+    }
+  });
+
+  socket.on('validatePasscode', (data) => {
+    if (data[1] === game_data[data[0].gameId].room_data[data[0].roomId].passcode) {
+      socket.emit('joinAfterPasscode', [data[0], true]);
+    } else {
+      socket.emit('joinAfterPasscode', [data[0], false]);
+    }
+  });
 
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
