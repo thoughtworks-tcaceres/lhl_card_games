@@ -9,7 +9,6 @@ socket.on('directToGame', (data) => {
   // console.log(data)
   // window.location.href = `/enterGame/${data.uniqueRoomName}`;
   $('#lobby').slideUp(100);
-
   console.log('MAKI CHAN');
   console.log(`#gameFor${data.uniqueRoomName}`);
   $(`#gameFor${data.gameId}`).toggle(1000);

@@ -3,13 +3,6 @@
 const kingsCup2 = function(io, socket, kingsCup2Data, userCurrentRoom){
 
 
-  // IMPORTANT
-// 
-
-  ////
-
-//   const dataForThisUser = kingsCup2Data[myRoom][socket.id]
-
     socket.on('whatever', (data) => {
         const myRoom = userCurrentRoom[socket.id];
         const game =  kingsCup2Data[myRoom].game;
