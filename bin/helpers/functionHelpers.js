@@ -112,8 +112,12 @@ const validateNewRoom = function(roomName, gameName, game_data) {
 // This adds new room to the data
 
 const insertNewRoom = function(roomId, gameId, passcode, game_data) {
+  let newPasscode = nameRefine(passcode);
+  if (newPasscode === '') {
+    newPasscode = null;
+  };
   game_data[gameId].room_data[roomId] = {
-    passcode: passcode,
+    passcode: newPasscode,
     joinedPlayers: []
   };
 };

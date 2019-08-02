@@ -324,14 +324,24 @@ io.on('connection', (socket) => {
         io.to(currentRoom).emit('init game', kingsCup2Data[currentRoom].game.getPlayers());
         //console.log("look here!!! ================", Object.keys(kingsCup2Data[currentRoom].players));
 
-        // console.log(kingsCup2Data)
-        // console.log(userCurrentRoom)
-        // console.log(currentRoom)
       }
     }
+
+
+        io.sockets.to(currentRoom).emit('kingsCup2Attendance', [
+          kingsCup2Data[currentRoom]
+        ]);
+      };
+    };
+
   });
-  //socketForKingsCup(io, socket);
-  socketForKingsCup(io, socket, kingsCupData, userCurrentRoom);
+
+  // Check to see if the passcode is required for joining a room
+
+  
+
+
+  socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
 
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
 });
