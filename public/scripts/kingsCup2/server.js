@@ -18,14 +18,12 @@ const kingsCup2 = function(io, socket, kingsCup2Data, userCurrentRoom) {
   socket.on('draw card button clicked', (data) => {
     const myRoom = userCurrentRoom[socket.id];
     const game = kingsCup2Data[myRoom].game;
-    console.log("hererererere")
-    //console.log(kingsCup2Data[myRoom].record);
-    console.log(myRoom);
-    
-    console.log("hererererere")
-    
+
     if(game.getDeck().getLength()> 0){
-      console.log('first branch about to happen');
+
+    game.startGame();
+
+    console.log('first branch about to happen');
     io.to(myRoom).emit('kcdrawcard', `${game.dealCard(socket.id)}`);
     console.log('event 2 about to happen');
     game.iteratePlayer();
