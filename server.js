@@ -116,6 +116,8 @@ io.use(
 const {socketForKingsCup} = require('./public/scripts/kingsCup/serverSide');
 const {kingsCup2} = require('./public/scripts/kingsCup2/server');
 
+// const userLinkSocketIdToDB = {};
+
 const kingsCupData = {};
 const kingsCup2Data = {};
 
@@ -157,6 +159,11 @@ io.on('connection', (socket) => {
 
   //00000000000000000000000000000000000
   userCurrentRoom[socket.id] = null;
+
+  // userLinkSocketIdToDB[socket.id] = {
+  //   name: ,
+  //   email:
+  // }
   //000000000000000000000000000
 
   // Handle the event when the user is disconnected
@@ -322,26 +329,12 @@ io.on('connection', (socket) => {
           kingsCup2Data[currentRoom].game.getPlayers()
         );
         io.to(currentRoom).emit('init game', kingsCup2Data[currentRoom].game.getPlayers());
-        //console.log("look here!!! ================", Object.keys(kingsCup2Data[currentRoom].players));
-
       }
     }
-
-
-        io.sockets.to(currentRoom).emit('kingsCup2Attendance', [
-          kingsCup2Data[currentRoom]
-        ]);
-      };
-    };
-
   });
 
-  // Check to see if the passcode is required for joining a room
-
-  
-
+  io.sockets.to(currentRoom).emit('kingsCup2Attendance', [kingsCup2Data[currentRoom]]);
 
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
-
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
 });
