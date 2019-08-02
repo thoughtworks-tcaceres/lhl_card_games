@@ -329,14 +329,13 @@ io.on('connection', (socket) => {
         });
       }
 
-
       //**** include initial push to DB here */
       //************************************** */
       let DB_game_id = roomGameId.gameId === 'kingsCup' ? 1 : 2;
       let DB_players_arr = game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers.map((player) => {
         return socketIdToEmail[player];
       });
-      
+
       addRecordDB(DB_game_id) //(game_id)
         .then((new_record) => {
           // not adding in for game id 1 because of data structure issues
@@ -348,8 +347,6 @@ io.on('connection', (socket) => {
         .catch((err) => console.log(err));
     }
   });
-    
-  
 
   socket.on('checkPasscode', (data) => {
     if (game_data[data.gameId].room_data[data.roomId].passcode) {
