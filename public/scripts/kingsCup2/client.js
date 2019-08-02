@@ -7,7 +7,7 @@ let gameRules = {
   '07': 'HEAVEN: Raise your hand to heaven. The last person to do so drinks.',
   '08': 'MATE: Choose someone to be your mate. Any time you drink they drink',
   '09': 'RHYME: Say a word. The person to your right says a word that rhymes. The first person to fail drinks',
-  '10': 'TEN: Choose a category of things. The person to your irght names something in that category. The first person to fail drinks.',
+  '10': 'TEN: Choose a category of th ings. The person to your irght names something in that category. The first person to fail drinks.',
   '11': 'NEVER HAVE I EVER: Play never have I ever',
   '12': 'QUESTIONS: Ask someone A question. That person then asks someone else a question. The first person to fail drinks',
   '13': 'MAKE A RULE: Obey the new rule for the duration of the game',
@@ -55,7 +55,7 @@ socket.on('kcdealbutton', (data) => {
 
 socket.on('initEndGame', ()=>{
   $('#drawdeckarea').append(`<button id = "initEndGame">End Game</button>`);
-  
+
 })
 
 socket.on('kc player 1 on init', (numPlayers) => {
