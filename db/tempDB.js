@@ -1,12 +1,5 @@
 let game_data = {
-  testGame:{
-    max_players: 3,
-    min_players: 2,
-    room_data: {woodpeckerpecker:{
-      passcode: null,
-      joinedPlayers: [] 
-    }}
-  },
+  
   whosbigger: {
     max_players: 3,
     min_players: 2,

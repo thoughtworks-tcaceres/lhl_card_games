@@ -366,5 +366,5 @@ io.on('connection', (socket) => {
 
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
-  //testGame(io, socket, testGameData, userCurrentRoom, game_data);
+  
 });

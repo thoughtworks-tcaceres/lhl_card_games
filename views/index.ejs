@@ -2,10 +2,12 @@
 
 <div class="container-fluid">
   <div class="row">
+
     <div class="main-border col-md-6 col-xs-12">
       <% include ./partials/carousel.ejs %>
     </div>
     <div class="main-border col-md-6 col-xs-12">
+
       <% if(!user) { %>
         <% include ./partials/signUp.ejs %>
         <% } else {%>
