@@ -38,6 +38,11 @@ socket.on('updateRoomStatus', (data) => {
     }
     $('#waitingMsg').css('display', 'none');
   }
+  if (data[0].length === 1) {
+    $('#deleteRoomBtn').css('display', 'block');
+  } else {
+    $('#deleteRoomBtn').css('display', 'none');
+  };
 });
 
 socket.on('askForPasscode', (data) => {
@@ -62,11 +67,24 @@ socket.on('joinAfterPasscode', (data) => {
   }
 });
 
-// --------------------------
-// --------------------------
-// --------------------------
+socket.on('showSomeErrorMessageInLobby', (msg) => {
+  document.getElementById('stopUserFromJoiningRoom').innerHTML = `<p>${msg}</p>`;
+  $('#stopUserFromJoiningRoom').toggle(500, function() {
+    $('#stopUserFromJoiningRoom').hide(2000);
+  });
+});
 
+socket.on('removeSpecificRoom', (data) => {
+  console.log('removing', data)
+  $(`#specificRoomBtnIdFor${data}`).remove();
+  logs.innerHTML = '<br><br>';
+  // $('#joinGameBtn').css('display', 'none');
+  $('#deleteRoomBtn').css('display', 'none');
+});
 
+// --------------------------
+// --------------------------
+// --------------------------
 
 socket.on('createNewRoom', (data) => {
   const newBtn = document.createElement('button');
@@ -74,6 +92,7 @@ socket.on('createNewRoom', (data) => {
     socket.emit('checkPasscode', data);
   });
   newBtn.innerHTML = data.roomId;
+  newBtn.id = `specificRoomBtnIdFor${data.gameId}-${data.roomId}`;
   newBtn.setAttribute('class', 'room');
   document.getElementById('availableRoomsFor' + data.gameId).appendChild(newBtn);
 });
@@ -88,9 +107,16 @@ $(document).ready(function() {
   loadJoinGameBtn();
   passcodeInputHandler();
   handleCancelPasscode();
+  handleDeleteRoomBtn();
 });
 
 // To be loaded on jquery when DOM is ready
+
+const handleDeleteRoomBtn = function() {
+  $('#deleteRoomBtn').on('click', function() {
+    socket.emit('deleteSpecificRoom');
+  });
+};
 
 const handleCancelPasscode = function() {
   $('#passcodeCancel').on('click', function() {
