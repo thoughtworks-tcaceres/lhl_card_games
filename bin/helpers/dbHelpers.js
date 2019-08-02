@@ -1,5 +1,43 @@
 const db = require('../../db/db');
 
+//player rankings by game type
+const getPlayerRankingsByGameType = () => {
+  const queryString = `select u.username as username, u.email as email, g.name as "game name",
+                      sum(case when s.win = true then 1.00 else 0.00 end) as total_wins,
+                      count(*) as total_games,
+                      round((sum(case when s.win = true then 1.00 else 0.00 end)/count(*))*100,2) as win_percent
+                      from users u
+                      join sessions s on u.id = s.user_id
+                      join records r on r.id = s.record_id
+                      join games g on g.id = r.game_id
+                      where r.end_time IS NOT NULL
+                      group by u.id, g.id`;
+  return db
+    .query({
+      text: queryString,
+      values: [],
+      name: 'get_player_rankings_game_type'
+    })
+    .then((res) => res.rows);
+};
+
+//archive of games played by each player
+const getArchivedGames = () => {
+  const queryString = `select u.username as "username", u.email as "email" , g.name as "game name", r.id as "game_id", case when s.win = true then 'win' else 'loss' end as "win/loss"
+                        from users u
+                        join sessions s on s.user_id = u.id
+                        join records r on r.id = s.record_id
+                        join games g on g.id = r.game_id
+                        where r.end_time IS NOT NULL;`;
+  return db
+    .query({
+      text: queryString,
+      values: [],
+      name: 'get_archived_games'
+    })
+    .then((res) => res.rows);
+};
+
 //select all users
 const getAllUsersDB = () => {
   const queryString = `SELECT * FROM users;`;
@@ -140,10 +178,11 @@ const addSessionDB = (user_id, record_id) => {
 
 //insert initial session
 const addSessionFlexibleDB = (email_arr, record_id) => {
+  console.log('I am here');
   const queryString = `INSERT INTO sessions (user_id, record_id)
                       SELECT id, $2
                       FROM users
-                      WHERE email = ANY(ARRAY[$1]::text[])
+                      WHERE email = ANY($1)
                       RETURNING *;`;
   const queryParams = [email_arr, `${record_id}`];
   return db
@@ -158,12 +197,12 @@ const addSessionFlexibleDB = (email_arr, record_id) => {
 };
 
 //insert initial record
-const updateRecordDB = (game_id) => {
+const updateRecordDB = (record_id) => {
   const queryString = `UPDATE records
                       SET end_time = CURRENT_TIMESTAMP
-                      WHERE game_id = $1
+                      WHERE id = $1
                       RETURNING *;`;
-  const queryParams = [`${game_id}`];
+  const queryParams = [`${record_id}`];
   return db
     .query({
       text: queryString,
@@ -181,7 +220,7 @@ const updateSessionDB = (user_id, record_id) => {
                       SET win = true
                       WHERE user_id = $1 and record_id = $2
                       RETURNING *;`;
-  const queryParams = [`${user_id}`, `${record_id}`, `${win}`];
+  const queryParams = [`${user_id}`, `${record_id}`];
   return db
     .query({
       text: queryString,
@@ -190,17 +229,16 @@ const updateSessionDB = (user_id, record_id) => {
     })
     .then((res) => {
       return res.rows[0];
-      ß;
     });
-  ß;
 };
 
-const updateSessionFlexibleDB = (user_id, record_id) => {
+const updateSessionFlexibleDB = (email_arr, record_id) => {
   const queryString = `UPDATE sessions
                       SET win = true
-                      WHERE user_id = $1 and record_id = $2
+                      WHERE record_id = $2 and user_id = ANY(SELECT id FROM users
+                                                          WHERE email = ANY($1))
                       RETURNING *;`;
-  const queryParams = [`${user_id}`, `${record_id}`];
+  const queryParams = [email_arr, `${record_id}`];
   return db
     .query({
       text: queryString,
@@ -226,5 +264,7 @@ module.exports = {
   updateRecordDB,
   updateSessionDB,
   addSessionFlexibleDB,
-  updateSessionFlexibleDB
+  updateSessionFlexibleDB,
+  getPlayerRankingsByGameType,
+  getArchivedGames
 };

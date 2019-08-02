@@ -7,37 +7,33 @@ class KingsCup{
     constructor(sockets, gameRoomName){
         this.endGame = false;
         this.roomName = gameRoomName;
-        this.playerPool = {};
-        this.playerQueue = [];
-    
-        this.setupPlayers(sockets);
-        this.setupPlayerQueue(this.playerPool)
+        this.playerPool = sockets;
+        
         this.playerTurnNumber = 0;
-
         this.deck = new Deck();
         this.deck.newDeck();
         this.deck.shuffle();
 
         this.bestPlayer = null;
 
-        console.log(this.playerQueue)
+        console.log(this.playerPool)
     }
 
     setupPlayers(sockets){
         
-        for(let socket in sockets){
-            this.playerPool[socket] = new Player(socket)
-            }
+        this.playerPool = Object.keys(sockets);
         }
-    setupPlayerQueue(){
-        for(let player in this.playerPool){
-            this.playerQueue.push(this.playerPool[player].id)
-        }
-    }
+    //setupPlayerQueue(){
+    //     for(let player in this.playerPool){
+    //         this.playerQueue.push(this.playerPool[player].id)
+    //     }
+    // }
     dealCard(playerID){
-        const player = this.playerPool[playerID];
-        player.drawCard(this.deck);
-        return player.getHand()[player.getHand().length-1];
+        
+        return this.deck.dealCard();
+    }
+    getPlayers(){
+        return this.playerPool;
     }
 
     setEndGame(bool){
@@ -84,3 +80,4 @@ class KingsCup{
 
 }}
 
+module.exports = KingsCup;

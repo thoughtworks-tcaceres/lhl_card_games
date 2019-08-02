@@ -1,5 +1,9 @@
 // load .env data into process.env
 require('dotenv').config();
+//JJ stuff==========JJ stuff===============
+const Game = require('./Games/KingsCup');
+
+//JJ stuff ===========JJstuff ==============
 
 // Web server config
 const PORT = process.env.PORT || 8080;
@@ -126,24 +130,28 @@ const userCurrentRoom = {};
 
 io.on('connection', (socket) => {
   console.log('user email cookie:', socket.handshake.session.email);
-  console.log('USER INFORMATION: ', socket.handshake.headers);
+  // console.log('USER INFORMATION: ', socket.handshake.headers);
 
-  // //on game start up - add record and session
-  // addRecordDB(3) //(game_id)
-  //   .then(
-  //     (data) => addSessionFlexibleDB(['t@gmail.com', 'a@gmail.com'], data.id)
-  //     /*
-  //     get list of userNames in the room, create a record in the sessions
-  //     database for each user
-  //     */
-  //   ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
-  //   .catch((err) => console.log(err));
+  //on game start up - add record and session
+  addRecordDB(3) //(game_id)
+    .then(
+      (data) =>
+        addSessionFlexibleDB(
+          ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
+          data.id
+        )
+      /*
+      get list of userNames in the room, create a record in the sessions
+      database for each user
+      */
+    ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
+    .catch((err) => console.log(err));
 
-  // //on game completion - update record and session
-  // updateRecordDB(2) //(game_id)
-  //   .then((data) => updateSessionFlexibleDB('t@gmail.com', data.id))
-  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
-  //   .catch((err) => console.log(err));
+  //on game completion - update record and session
+  updateRecordDB(50) //(record_id)
+    .then((data) => updateSessionFlexibleDB('t@gmail.com', data.id))
+    //array of object that updates each rank for a single --> same thing as regularupdate session?
+    .catch((err) => console.log(err));
 
   let currentRoom;
   
@@ -240,9 +248,12 @@ io.on('connection', (socket) => {
       }
     }
 
+  
+
     // Join the room
 
     currentRoom = uniqueRoomName;
+
 
     ///000000000000000000000000000000000000000
     userCurrentRoom[socket.id] = currentRoom;
@@ -305,10 +316,16 @@ io.on('connection', (socket) => {
         console.log('We are joining this: ', roomGameId.gameId)
 
         kingsCup2Data[currentRoom] = {};
+        kingsCup2Data[currentRoom].players = {}
         for (let id of game_data[roomGameId.gameId].room_data[roomGameId.roomId].joinedPlayers) {
-          kingsCup2Data[currentRoom][id] = {};
+          
+          kingsCup2Data[currentRoom].players[id] =  {};
+          
         }
-
+        console.log(kingsCup2[currentRoom])
+        kingsCup2Data[currentRoom].game = new Game(Object.keys(kingsCup2Data[currentRoom].players), currentRoom)
+        io.to(kingsCup2Data[currentRoom].game.getPlayers()[0]).emit("initgame")
+        //console.log("look here!!! ================", Object.keys(kingsCup2Data[currentRoom].players));
 
         // console.log(kingsCup2Data)
         // console.log(userCurrentRoom)
@@ -327,6 +344,9 @@ io.on('connection', (socket) => {
 
 
   socketForKingsCup(io, socket, kingsCupData, userCurrentRoom, game_data);
+
   kingsCup2(io, socket, kingsCup2Data, userCurrentRoom);
 
+
 });
+
