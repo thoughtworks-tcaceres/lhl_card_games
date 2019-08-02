@@ -4,17 +4,9 @@ INSERT INTO sessions (user_id,record_id) VALUES (3,1);
 INSERT INTO sessions (user_id,record_id) VALUES (4,2);
 INSERT INTO sessions (user_id,record_id) VALUES (5,2);
 INSERT INTO sessions (user_id,record_id) VALUES (6,3);
-INSERT INTO sessions (user_id,record_id) VALUES (7,3);
-INSERT INTO sessions (user_id,record_id) VALUES (8,3);
-INSERT INTO sessions (user_id,record_id) VALUES (9,4);
-INSERT INTO sessions (user_id,record_id) VALUES (8,4);
+
 INSERT INTO sessions (user_id,record_id) VALUES (2,5);
 INSERT INTO sessions (user_id,record_id) VALUES (3,5);
 INSERT INTO sessions (user_id,record_id) VALUES (1,6);
 INSERT INTO sessions (user_id,record_id) VALUES (2,6);
-INSERT INTO sessions (user_id,record_id) VALUES (3,7);
-INSERT INTO sessions (user_id,record_id) VALUES (1,7);
-INSERT INTO sessions (user_id,record_id) VALUES (2,8);
-INSERT INTO sessions (user_id,record_id) VALUES (3,8);
-INSERT INTO sessions (user_id,record_id) VALUES (2,9);
-INSERT INTO sessions (user_id,record_id) VALUES (3,9);
+
