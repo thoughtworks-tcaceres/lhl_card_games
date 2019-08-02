@@ -156,31 +156,31 @@ io.on('connection', (socket) => {
   //   //array of object that updates each rank for a single --> same thing as regularupdate session?
   //   .catch((err) => console.log(err));
 
-  if (socket.handshake.session.email) {
-    socketIdToEmail[socket.id] = socket.handshake.session.email;
-  }
-  console.log(socketIdToEmail);
+  // if (socket.handshake.session.email) {
+  //   socketIdToEmail[socket.id] = socket.handshake.session.email;
+  // }
+  // console.log(socketIdToEmail);
 
-  //on game start up - add record and session
-  addRecordDB(3) //(game_id)
-    .then(
-      (data) =>
-        addSessionFlexibleDB(
-          ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
-          data.id
-        )
-      /*
-      get list of userNames in the room, create a record in the sessions
-      database for each user
-      */
-    ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
-    .catch((err) => console.log(err));
+  // //on game start up - add record and session
+  // addRecordDB(3) //(game_id)
+  //   .then(
+  //     (data) =>
+  //       addSessionFlexibleDB(
+  //         ['t@gmail.com', 'a@gmail.com', 'tyler@gmail.com', 'jj@gmail.com', 'joe@gmail.com', 'viet@gmail.com'],
+  //         data.id
+  //       )
+  //     /*
+  //     get list of userNames in the room, create a record in the sessions
+  //     database for each user
+  //     */
+  //   ) //(user_id,record_id) -- need to find all the users --> uses(email_arr,record_id)
+  //   .catch((err) => console.log(err));
 
-  //on game completion - update record and session
-  updateRecordDB(50) //(record_id)
-    .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
-    //array of object that updates each rank for a single --> same thing as regularupdate session?
-    .catch((err) => console.log(err));
+  // //on game completion - update record and session
+  // updateRecordDB(50) //(record_id)
+  //   .then((data) => updateSessionFlexibleDB(['t@gmail.com'], data.id))
+  //   //array of object that updates each rank for a single --> same thing as regularupdate session?
+  //   .catch((err) => console.log(err));
 
 
   let currentRoom;
@@ -231,22 +231,40 @@ io.on('connection', (socket) => {
     io.sockets.emit('createNewRoom', data);
   });
 
+  // Delete the room
+
+  socket.on('deleteSpecificRoom', () => {
+    socket.emit('removeSpecificRoom', currentRoom);
+    const roomGameId = getRoomGameId(currentRoom);
+    delete game_data[roomGameId.gameId].room_data[roomGameId.roomId];
+    currentRoom = null;
+    userCurrentRoom[socket.id] = null;
+  });
+
   // Join a room
 
   socket.on('joinARoom', (data) => {
-    // Check number of users
-
-    const numberOfExistingUsers = getNumberOfUsers(data.gameId, data.roomId, io);
-    if (numberOfExistingUsers >= game_data[data.gameId].max_players) {
-      console.log('Room is full');
-      return;
-    }
 
     // Check to see if user is trying to join the room he/she has already joined
 
     const uniqueRoomName = `${data.gameId}-${data.roomId}`;
     const joinedRooms = getJoinedRooms(game_data, io, socket.id);
     if (joinedRooms.includes(uniqueRoomName)) {
+      return;
+    }
+
+    // Check number of users
+
+    const numberOfExistingUsers = getNumberOfUsers(data.gameId, data.roomId, io);
+    if (numberOfExistingUsers >= game_data[data.gameId].max_players) {
+      socket.emit('showSomeErrorMessageInLobby', 'This room is full!');
+      return;
+    }
+
+    // Check if the game is in progress
+
+    if (game_data[data.gameId].room_data[data.roomId].joinedPlayers.length > 0) {
+      socket.emit('showSomeErrorMessageInLobby', 'The game is in progress!');
       return;
     }
 

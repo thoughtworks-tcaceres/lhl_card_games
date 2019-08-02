@@ -35,7 +35,8 @@
         <% let uniqueBtnSectionId = 'availableRoomsFor' + game; %>
         <div id=<%= uniqueBtnSectionId %>>
           <% for (let room in game_data[game].room_data) { %>
-            <button class="room btn-success" data-gameid=<%=game%> data-roomid=<%= room %> value=<%=room%>><%=room%></button>
+            <% let specificRoomBtnId = `specificRoomBtnIdFor${game}-${room}` %>
+            <button class="room" id=<%=specificRoomBtnId%> data-gameid=<%=game%> data-roomid=<%= room %> value=<%=room%>><%=room%></button>
           <% } %>
         </div>
       </div>
@@ -53,6 +54,7 @@
 
   <!--  -->
   <button id="joinGameBtn" style="display: none;">JOIN GAME!</button>
+  <button id="deleteRoomBtn" style="display: none; color: red;">Delete this room</button>
   <p style="display: none;" id="waitingMsg">Waiting for other players to join...</p>
   <!--  -->
 
@@ -70,6 +72,7 @@
 </div>
 
 <div id="wrongPasscodeEntered" style="display: none; border: red, solid; color: red; background-color: white;">Wrong passcode!</div>
+<div id="stopUserFromJoiningRoom" style="display: none; border: red, solid; color: red; background-color: white;"></div>
 
   <% include ./mainPage %>
   <% include ./partials/footer %>
